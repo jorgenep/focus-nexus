@@ -1,0 +1,62 @@
+// Function definitions and calls
+
+// Simple function
+function greet(name):
+{
+    print("Hello, " + name + "!")
+    return "Greeting complete"
+}
+
+// Recursive function - Fibonacci
+function fibonacci(n):
+{
+    if n <= 1:
+    {
+        return n
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+// Function with multiple parameters
+function calculate_area(length, width):
+{
+    return length * width
+}
+
+// Function that uses other functions
+function print_fibonacci_sequence(count):
+{
+    print("Fibonacci sequence:")
+    for i = 0; i < count; i = i + 1:
+    {
+        print("F(" + str(i) + ") =", fibonacci(i))
+    }
+}
+
+// Test function calls
+let greeting_result = greet("Alice")
+print("Result:", greeting_result)
+
+let area = calculate_area(5, 3)
+print("Area of 5x3 rectangle:", area)
+
+print_fibonacci_sequence(8)
+
+// Closure example
+function make_counter():
+{
+    let count = 0
+    
+    function increment():
+    {
+        count = count + 1
+        return count
+    }
+    
+    return increment
+}
+
+let counter = make_counter()
+print("Counter 1:", counter())
+print("Counter 2:", counter())
+print("Counter 3:", counter())

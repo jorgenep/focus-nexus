@@ -1,0 +1,30 @@
+// Fibonacci sequence calculator
+
+function fibonacci(n):
+{
+    if n <= 1:
+    {
+        return n
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+function print_fibonacci(count):
+{
+    print("Fibonacci sequence up to", count, "terms:")
+    for i = 0; i < count; i = i + 1:
+    {
+        let fib = fibonacci(i)
+        print("F(" + str(i) + ") =", fib)
+    }
+}
+
+// Calculate and print Fibonacci sequence
+print_fibonacci(10)
+
+// Test individual Fibonacci numbers
+print("\nIndividual tests:")
+print("fibonacci(0) =", fibonacci(0))
+print("fibonacci(1) =", fibonacci(1))
+print("fibonacci(5) =", fibonacci(5))
+print("fibonacci(8) =", fibonacci(8))

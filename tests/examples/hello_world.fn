@@ -1,0 +1,12 @@
+// Hello World program
+print("Hello, World!")
+
+// Variables
+let name = "MyLanguage"
+print("Welcome to " + name + "!")
+
+// Numbers
+let x = 42
+let y = 3.14
+print("x =", x)
+print("y =", y)

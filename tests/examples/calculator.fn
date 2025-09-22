@@ -1,0 +1,38 @@
+// Interactive Calculator
+function add(a, b):
+{
+    return a + b
+}
+
+function subtract(a, b):
+{
+    return a - b
+}
+
+function multiply(a, b):
+{
+    return a * b
+}
+
+function divide(a, b):
+{
+    if b == 0:
+    {
+        print("Error: Division by zero!")
+        return nil
+    }
+    return a / b
+}
+
+// Test calculations
+let result1 = add(10, 5)
+print("10 + 5 =", result1)
+
+let result2 = multiply(7, 8)
+print("7 * 8 =", result2)
+
+let result3 = divide(20, 4)
+print("20 / 4 =", result3)
+
+let result4 = subtract(15, 7)
+print("15 - 7 =", result4)

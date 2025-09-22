@@ -1,0 +1,96 @@
+// Conditional statements
+
+// Simple if-else
+let age = 25
+
+if age >= 18:
+{
+    print("You are an adult")
+}
+else:
+{
+    print("You are a minor")
+}
+
+// Nested conditionals
+let score = 85
+
+if score >= 90:
+{
+    print("Grade: A")
+}
+else:
+{
+    if score >= 80:
+    {
+        print("Grade: B")
+    }
+    else:
+    {
+        if score >= 70:
+        {
+            print("Grade: C")
+        }
+        else:
+        {
+            print("Grade: F")
+        }
+    }
+}
+
+// Boolean operations
+let x = 10
+let y = 20
+
+if x > 5 and y < 25:
+{
+    print("Both conditions are true")
+}
+
+if x < 5 or y > 15:
+{
+    print("At least one condition is true")
+}
+
+// Function with conditionals
+function classify_number(n):
+{
+    if n > 0:
+    {
+        return "positive"
+    }
+    else:
+    {
+        if n < 0:
+        {
+            return "negative"
+        }
+        else:
+        {
+            return "zero"
+        }
+    }
+}
+
+print("10 is", classify_number(10))
+print("-5 is", classify_number(-5))
+print("0 is", classify_number(0))
+
+// Complex conditions
+function check_range(value, min, max):
+{
+    if value >= min and value <= max:
+    {
+        print(str(value) + " is in range [" + str(min) + ", " + str(max) + "]")
+        return true
+    }
+    else:
+    {
+        print(str(value) + " is out of range [" + str(min) + ", " + str(max) + "]")
+        return false
+    }
+}
+
+check_range(15, 10, 20)
+check_range(5, 10, 20)
+check_range(25, 10, 20)

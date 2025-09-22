@@ -1,0 +1,40 @@
+// Variable declarations and scoping
+let global_var = "I am global"
+
+function test_scope():
+{
+    let local_var = "I am local"
+    print("Inside function:")
+    print("  global_var =", global_var)
+    print("  local_var =", local_var)
+    
+    // Modify global variable
+    global_var = "Modified global"
+}
+
+print("Before function call:")
+print("global_var =", global_var)
+
+test_scope()
+
+print("After function call:")
+print("global_var =", global_var)
+
+// Block scoping
+{
+    let block_var = "I am in a block"
+    print("Inside block:", block_var)
+}
+
+// Different data types
+let number = 42
+let float_num = 3.14159
+let text = "Hello, World!"
+let flag = true
+let empty = nil
+
+print("number =", number, "type:", type(number))
+print("float_num =", float_num, "type:", type(float_num))
+print("text =", text, "type:", type(text))
+print("flag =", flag, "type:", type(flag))
+print("empty =", empty, "type:", type(empty))

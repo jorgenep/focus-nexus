@@ -1,0 +1,51 @@
+// Loop examples
+
+// While loop
+print("While loop - counting to 5:")
+let i = 1
+while i <= 5:
+{
+    print("Count:", i)
+    i = i + 1
+}
+
+// For loop
+print("\nFor loop - counting from 0 to 4:")
+for j = 0; j < 5; j = j + 1:
+{
+    print("j =", j)
+}
+
+// Nested loops
+print("\nNested loops - multiplication table:")
+for x = 1; x <= 3; x = x + 1:
+{
+    for y = 1; y <= 3; y = y + 1:
+    {
+        print(str(x) + " * " + str(y) + " =", x * y)
+    }
+}
+
+// Loop with function calls
+function is_even(n):
+{
+    return n % 2 == 0
+}
+
+print("\nEven numbers from 1 to 10:")
+for num = 1; num <= 10; num = num + 1:
+{
+    if is_even(num):
+    {
+        print(num, "is even")
+    }
+}
+
+// While loop with condition
+print("\nPowers of 2 less than 100:")
+let power = 1
+while power < 100:
+{
+    print(power)
+    power = power * 2
+}

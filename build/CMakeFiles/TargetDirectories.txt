@@ -1,0 +1,3 @@
+/home/elijah/Downloads/project-bolt-sb1-5r7cm9qc/project/build/CMakeFiles/focusNexus.dir
+/home/elijah/Downloads/project-bolt-sb1-5r7cm9qc/project/build/CMakeFiles/edit_cache.dir
+/home/elijah/Downloads/project-bolt-sb1-5r7cm9qc/project/build/CMakeFiles/rebuild_cache.dir

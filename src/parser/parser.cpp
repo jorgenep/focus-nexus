@@ -1,0 +1,424 @@
+#include "parser.hpp"
+
+#include "../error/error_handler.hpp"
+#include "../error/exceptions.hpp"
+
+Parser::Parser(std::vector<Token> tokens) : tokens(std::move(tokens)) {}
+
+std::vector<StmtPtr> Parser::parse() {
+    std::vector<StmtPtr> statements;
+    
+    while (!isAtEnd()) {
+        // Skip newlines at the top level
+        if (match({TokenType::NEWLINE})) {
+            continue;
+        }
+        
+        try {
+            if (auto stmt = declaration()) {
+                statements.push_back(std::move(stmt));
+            }
+        } catch ([[maybe_unused]] const ParseError& error) {
+            synchronize();
+        }
+    }
+    
+    return statements;
+}
+
+StmtPtr Parser::declaration() {
+    try {
+        if (match({TokenType::FUNCTION})) return functionStatement("function");
+        if (match({TokenType::VAR, TokenType::LET})) return varDeclaration();
+        return statement();
+    } catch ([[maybe_unused]] const ParseError& error) {
+        synchronize();
+        return nullptr;
+    }
+}
+
+StmtPtr Parser::statement() {
+    if (match({TokenType::IF})) return ifStatement();
+    if (match({TokenType::PRINT})) return printStatement();
+    if (match({TokenType::RETURN})) return returnStatement();
+    if (match({TokenType::WHILE})) return whileStatement();
+    if (match({TokenType::FOR})) return forStatement();
+    if (match({TokenType::LEFT_BRACE})) return blockStatement();
+
+    return expressionStatement();
+}
+
+StmtPtr Parser::printStatement() {
+    auto value = expression();
+    consume(TokenType::NEWLINE, "Expected newline after value");
+    return std::make_unique<PrintStmt>(std::move(value));
+}
+
+StmtPtr Parser::returnStatement() {
+    Token keyword = previous();
+    ExprPtr value = nullptr;
+
+    if (!check(TokenType::NEWLINE)) {
+        value = expression();
+    }
+
+    consume(TokenType::NEWLINE, "Expected newline after return value");
+    return std::make_unique<ReturnStmt>(keyword, std::move(value));
+}
+
+StmtPtr Parser::varDeclaration() {
+    Token name = consume(TokenType::IDENTIFIER, "Expected variable name");
+
+    ExprPtr initializer = nullptr;
+    if (match({TokenType::EQUAL})) {
+        initializer = expression();
+    }
+
+    consume(TokenType::NEWLINE, "Expected newline after variable declaration");
+    return std::make_unique<VarStmt>(name, std::move(initializer));
+}
+
+StmtPtr Parser::expressionStatement() {
+    auto expr = expression();
+    consume(TokenType::NEWLINE, "Expected newline after expression");
+    return std::make_unique<ExpressionStmt>(std::move(expr));
+}
+
+StmtPtr Parser::functionStatement(const std::string& kind) {
+    Token name = consume(TokenType::IDENTIFIER, "Expected " + kind + " name");
+
+    consume(TokenType::LEFT_PAREN, "Expected '(' after " + kind + " name");
+    std::vector<Token> parameters;
+
+    if (!check(TokenType::RIGHT_PAREN)) {
+        do {
+            if (parameters.size() >= 255) {
+                ErrorHandler::error(peek().line, peek().column, "Can't have more than 255 parameters");
+            }
+            parameters.push_back(consume(TokenType::IDENTIFIER, "Expected parameter name"));
+        } while (match({TokenType::COMMA}));
+    }
+
+    consume(TokenType::RIGHT_PAREN, "Expected ')' after parameters");
+    consume(TokenType::COLON, "Expected ':' before " + kind + " body");
+    consume(TokenType::NEWLINE, "Expected newline after ':'");
+
+    consume(TokenType::LEFT_BRACE, "Expected '{' before " + kind + " body");
+    auto blockStmt = blockStatement();
+    auto blockPtr = dynamic_cast<BlockStmt*>(blockStmt.get());
+    std::vector<StmtPtr> body = std::move(blockPtr->statements);
+    //blockStmt.release(); // Release ownership since we moved the statements
+
+    return std::make_unique<FunctionStmt>(name, std::move(parameters), std::move(body));
+}
+
+StmtPtr Parser::ifStatement() {
+    auto condition = expression();
+    consume(TokenType::COLON, "Expected ':' after if condition");
+    consume(TokenType::NEWLINE, "Expected newline after ':'");
+
+    auto thenBranch = statement();
+    StmtPtr elseBranch = nullptr;
+
+    if (match({TokenType::ELSE})) {
+        consume(TokenType::COLON, "Expected ':' after 'else'");
+        consume(TokenType::NEWLINE, "Expected newline after ':'");
+        elseBranch = statement();
+    }
+
+    return std::make_unique<IfStmt>(std::move(condition), std::move(thenBranch), std::move(elseBranch));
+}
+
+StmtPtr Parser::whileStatement() {
+    auto condition = expression();
+    consume(TokenType::COLON, "Expected ':' after while condition");
+    consume(TokenType::NEWLINE, "Expected newline after ':'");
+
+    auto body = statement();
+    return std::make_unique<WhileStmt>(std::move(condition), std::move(body));
+}
+
+StmtPtr Parser::forStatement() {
+    consume(TokenType::IDENTIFIER, "Expected variable name");
+    Token variable = previous();
+    consume(TokenType::EQUAL, "Expected '=' after for loop variable");
+    auto initializer = std::make_unique<VarStmt>(variable, expression());
+
+    consume(TokenType::SEMICOLON, "Expected ';' after for loop initializer");
+
+    ExprPtr condition = nullptr;
+    if (!check(TokenType::SEMICOLON)) {
+        condition = expression();
+    }
+    consume(TokenType::SEMICOLON, "Expected ';' after for loop condition");
+
+    ExprPtr increment = nullptr;
+    if (!check(TokenType::COLON)) {
+        increment = expression();
+    }
+    consume(TokenType::COLON, "Expected ':' after for clauses");
+    consume(TokenType::NEWLINE, "Expected newline after ':'");
+
+    auto body = statement();
+
+    return std::make_unique<ForStmt>(std::move(initializer), std::move(condition),
+                                   std::move(increment), std::move(body));
+}
+
+StmtPtr Parser::blockStatement() {
+    std::vector<StmtPtr> statements;
+    
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+        if (match({TokenType::NEWLINE})) {
+            continue;
+        }
+        if (auto stmt = declaration()) {
+            statements.push_back(std::move(stmt));
+        }
+    }
+    
+    consume(TokenType::RIGHT_BRACE, "Expected '}' after block");
+    return std::make_unique<BlockStmt>(std::move(statements));
+}
+
+ExprPtr Parser::expression() {
+    return assignment();
+}
+
+ExprPtr Parser::assignment() {
+    auto expr = logicalOr();
+    
+    if (match({TokenType::EQUAL})) {
+        Token equals = previous();
+        auto value = assignment();
+        
+        if (auto var = dynamic_cast<VariableExpr*>(expr.get())) {
+            Token name = var->name;
+            //expr.release(); // Release ownership
+            return std::make_unique<AssignExpr>(name, std::move(value));
+        }
+        
+        ErrorHandler::error(equals.line, equals.column, "Invalid assignment target");
+    }
+    
+    return expr;
+}
+
+ExprPtr Parser::logicalOr() {
+    auto expr = logicalAnd();
+    
+    while (match({TokenType::OR})) {
+        Token operator_ = previous();
+        auto right = logicalAnd();
+        expr = std::make_unique<BinaryExpr>(std::move(expr), operator_, std::move(right));
+    }
+    
+    return expr;
+}
+
+ExprPtr Parser::logicalAnd() {
+    auto expr = equality();
+    
+    while (match({TokenType::AND})) {
+        Token operator_ = previous();
+        auto right = equality();
+        expr = std::make_unique<BinaryExpr>(std::move(expr), operator_, std::move(right));
+    }
+    
+    return expr;
+}
+
+ExprPtr Parser::equality() {
+    auto expr = comparison();
+    
+    while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
+        Token operator_ = previous();
+        auto right = comparison();
+        expr = std::make_unique<BinaryExpr>(std::move(expr), operator_, std::move(right));
+    }
+    
+    return expr;
+}
+
+ExprPtr Parser::comparison() {
+    auto expr = term();
+    
+    while (match({TokenType::GREATER, TokenType::GREATER_EQUAL, TokenType::LESS, TokenType::LESS_EQUAL})) {
+        Token operator_ = previous();
+        auto right = term();
+        expr = std::make_unique<BinaryExpr>(std::move(expr), operator_, std::move(right));
+    }
+    
+    return expr;
+}
+
+ExprPtr Parser::term() {
+    auto expr = factor();
+    
+    while (match({TokenType::MINUS, TokenType::PLUS})) {
+        Token operator_ = previous();
+        auto right = factor();
+        expr = std::make_unique<BinaryExpr>(std::move(expr), operator_, std::move(right));
+    }
+    
+    return expr;
+}
+
+ExprPtr Parser::factor() {
+    auto expr = unary();
+    
+    while (match({TokenType::SLASH, TokenType::STAR})) {
+        Token operator_ = previous();
+        auto right = unary();
+        expr = std::make_unique<BinaryExpr>(std::move(expr), operator_, std::move(right));
+    }
+    
+    return expr;
+}
+
+ExprPtr Parser::unary() {
+    if (match({TokenType::BANG, TokenType::MINUS})) {
+        Token operator_ = previous();
+        auto right = unary();
+        return std::make_unique<UnaryExpr>(operator_, std::move(right));
+    }
+    
+    return call();
+}
+
+ExprPtr Parser::call() {
+    auto expr = primary();
+    
+    while (true) {
+        if (match({TokenType::LEFT_PAREN})) {
+            expr = finishCall(std::move(expr));
+        } else if (match({TokenType::LEFT_BRACKET})) {
+            auto index = expression();
+            consume(TokenType::RIGHT_BRACKET, "Expected ']' after index");
+            expr = std::make_unique<IndexExpr>(std::move(expr), std::move(index));
+        } else {
+            break;
+        }
+    }
+    
+    return expr;
+}
+
+ExprPtr Parser::finishCall(ExprPtr callee) {
+    std::vector<ExprPtr> arguments;
+    
+    if (!check(TokenType::RIGHT_PAREN)) {
+        do {
+            if (arguments.size() >= 255) {
+                ErrorHandler::error(peek().line, peek().column, "Can't have more than 255 arguments");
+            }
+            arguments.push_back(expression());
+        } while (match({TokenType::COMMA}));
+    }
+    
+    Token paren = consume(TokenType::RIGHT_PAREN, "Expected ')' after arguments");
+    return std::make_unique<CallExpr>(std::move(callee), paren, std::move(arguments));
+}
+
+ExprPtr Parser::primary() {
+    if (match({TokenType::FALSE})) return std::make_unique<LiteralExpr>(Value(false));
+    if (match({TokenType::TRUE})) return std::make_unique<LiteralExpr>(Value(true));
+    if (match({TokenType::NIL})) return std::make_unique<LiteralExpr>(Value());
+    
+    if (match({TokenType::NUMBER})) {
+        double value = std::stod(previous().literal);
+        return std::make_unique<LiteralExpr>(Value(value));
+    }
+    
+    if (match({TokenType::STRING})) {
+        return std::make_unique<LiteralExpr>(Value(previous().literal));
+    }
+    
+    if (match({TokenType::IDENTIFIER})) {
+        return std::make_unique<VariableExpr>(previous());
+    }
+    
+    if (match({TokenType::LEFT_PAREN})) {
+        auto expr = expression();
+        consume(TokenType::RIGHT_PAREN, "Expected ')' after expression");
+        return std::make_unique<GroupingExpr>(std::move(expr));
+    }
+    
+    if (match({TokenType::LEFT_BRACKET})) {
+        std::vector<ExprPtr> elements;
+        
+        if (!check(TokenType::RIGHT_BRACKET)) {
+            do {
+                elements.push_back(expression());
+            } while (match({TokenType::COMMA}));
+        }
+        
+        consume(TokenType::RIGHT_BRACKET, "Expected ']' after list elements");
+        return std::make_unique<ListExpr>(std::move(elements));
+    }
+    
+    throw ParseError("Expected expression at line " + std::to_string(peek().line));
+}
+
+bool Parser::match(std::initializer_list<TokenType> types) {
+    for (TokenType type : types) { // NOLINT(*-use-anyofallof)
+        if (check(type)) {
+            advance();
+            return true;
+        }
+    }
+    return false;
+}
+
+Token Parser::advance() {
+    if (!isAtEnd()) current++;
+    return previous();
+}
+
+bool Parser::isAtEnd() {
+    return peek().type == TokenType::EOF_TOKEN;
+}
+
+Token Parser::peek() {
+    return tokens[current];
+}
+
+Token Parser::previous() {
+    return tokens[current - 1];
+}
+
+bool Parser::check(TokenType type) {
+    if (isAtEnd()) return false;
+    return peek().type == type;
+}
+
+Token Parser::consume(TokenType type, const std::string& message) {
+    if (check(type)) return advance();
+    
+    Token token = peek();
+    throw ParseError(message + " at line " + std::to_string(token.line) + ", column " + std::to_string(token.column));
+}
+
+void Parser::synchronize() {
+    advance();
+    
+    while (!isAtEnd()) {
+        if (previous().type == TokenType::NEWLINE) return;
+        
+        switch (peek().type) {
+            case TokenType::CLASS:
+            case TokenType::FUNCTION:
+            case TokenType::VAR:
+            case TokenType::FOR:
+            case TokenType::IF:
+            case TokenType::WHILE:
+            case TokenType::PRINT:
+            case TokenType::RETURN:
+                return;
+            default:
+                break;
+        }
+        
+        advance();
+    }
+}
