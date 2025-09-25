@@ -18,7 +18,7 @@ std::unordered_map<std::string, TokenType> TokenUtils::keywords = {
     {"true", TokenType::TRUE},
     {"var", TokenType::VAR},
     {"while", TokenType::WHILE},
-    {"let", TokenType::LET},
+    {"set", TokenType::LET},
     {"break", TokenType::BREAK},
     {"continue", TokenType::CONTINUE}
 };

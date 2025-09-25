@@ -63,29 +63,29 @@ Value Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     switch (expr.operator_.type) {
         case TokenType::GREATER:
             checkNumberOperands(expr.operator_, left, right);
-            return {left.asNumber() > right.asNumber()};
+            return Value(left.asNumber() > right.asNumber());
         case TokenType::GREATER_EQUAL:
             checkNumberOperands(expr.operator_, left, right);
-            return {left.asNumber() >= right.asNumber()};
+            return Value(left.asNumber() >= right.asNumber());
         case TokenType::LESS:
             checkNumberOperands(expr.operator_, left, right);
-            return {left.asNumber() < right.asNumber()};
+            return Value(left.asNumber() < right.asNumber());
         case TokenType::LESS_EQUAL:
             checkNumberOperands(expr.operator_, left, right);
-            return {left.asNumber() <= right.asNumber()};
+            return Value(left.asNumber() <= right.asNumber());
         case TokenType::BANG_EQUAL:
-            return {!isEqual(left, right)};
+            return Value(!isEqual(left, right));
         case TokenType::EQUAL_EQUAL:
-            return {isEqual(left, right)};
+            return Value(isEqual(left, right));
         case TokenType::MINUS:
             checkNumberOperands(expr.operator_, left, right);
-            return {left.asNumber() - right.asNumber()};
+            return Value(left.asNumber() - right.asNumber());
         case TokenType::PLUS:
             if (left.isNumber() && right.isNumber()) {
-                return {left.asNumber() + right.asNumber()};
+                return Value(left.asNumber() + right.asNumber());
             }
             if (left.isString() || right.isString()) {
-                return {left.toString() + right.toString()};
+                return Value(left.toString() + right.toString());
             }
             throw RuntimeError(expr.operator_, "Operands must be two numbers or strings");
         case TokenType::SLASH:
@@ -93,10 +93,10 @@ Value Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             if (right.asNumber() == 0) {
                 throw RuntimeError(expr.operator_, "Division by zero");
             }
-            return {left.asNumber() / right.asNumber()};
+            return Value(left.asNumber() / right.asNumber());
         case TokenType::STAR:
             checkNumberOperands(expr.operator_, left, right);
-            return {left.asNumber() * right.asNumber()};
+            return Value(left.asNumber() * right.asNumber());
         case TokenType::AND:
             if (!left.isTruthy()) return left;
             return right;
@@ -115,10 +115,10 @@ Value Interpreter::visitUnaryExpr(UnaryExpr& expr) {
     
     switch (expr.operator_.type) {
         case TokenType::BANG:
-            return {!right.isTruthy()};
+            return Value(!right.isTruthy());
         case TokenType::MINUS:
             checkNumberOperand(expr.operator_, right);
-            return {-right.asNumber()};
+            return Value(-right.asNumber());
         default:
             break;
     }
@@ -177,7 +177,7 @@ Value Interpreter::visitListExpr(ListExpr& expr) {
         list->push_back(evaluate(*element));
     }
     
-    return {list};
+    return Value(list);
 }
 
 Value Interpreter::visitIndexExpr(IndexExpr& expr) {

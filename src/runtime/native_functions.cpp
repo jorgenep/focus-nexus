@@ -26,7 +26,7 @@ std::shared_ptr<Callable> createInputFunction() {
             }
             std::string input;
             std::getline(std::cin, input);
-            return {input};
+            return Value(input);
         },
         -1, // 0 or 1 argument
         "input"
@@ -42,9 +42,9 @@ std::shared_ptr<Callable> createLenFunction() {
             
             const Value& arg = arguments[0];
             if (arg.isString()) {
-                return {static_cast<double>(arg.asString().length())};
+                return Value(static_cast<double>(arg.asString().length()));
             } else if (arg.isList()) {
-                return {static_cast<double>(arg.asList()->size())};
+                return Value(static_cast<double>(arg.asList()->size()));
             } else {
                 throw std::runtime_error("Object of type '" + arg.getType() + "' has no len()");
             }
@@ -60,7 +60,7 @@ std::shared_ptr<Callable> createStrFunction() {
             if (arguments.size() != 1) {
                 throw std::runtime_error("str() takes exactly one argument");
             }
-            return {arguments[0].toString()};
+            return Value(arguments[0].toString());
         },
         1,
         "str"
@@ -79,7 +79,7 @@ std::shared_ptr<Callable> createNumFunction() {
                 return arg;
             } else if (arg.isString()) {
                 try {
-                    return {std::stod(arg.asString())};
+                    return Value(std::stod(arg.asString()));
                 } catch (const std::exception&) {
                     throw std::runtime_error("Cannot convert '" + arg.asString() + "' to number");
                 }
@@ -98,7 +98,7 @@ std::shared_ptr<Callable> createTypeFunction() {
             if (arguments.size() != 1) {
                 throw std::runtime_error("type() takes exactly one argument");
             }
-            return {arguments[0].getType()};
+            return Value(arguments[0].getType());
         },
         1,
         "type"
@@ -111,7 +111,7 @@ std::shared_ptr<Callable> createClockFunction() {
             auto now = std::chrono::high_resolution_clock::now();
             auto duration = now.time_since_epoch();
             auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-            return {static_cast<double>(millis) / 1000.0};
+            return Value(static_cast<double>(millis) / 1000.0);
         },
         0,
         "clock"
