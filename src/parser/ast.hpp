@@ -20,6 +20,61 @@ public:
 };
 
 // Expression types
+class LambdaExpr : public Expr {
+public:
+    std::vector<Token> params;
+    std::vector<StmtPtr> body;
+
+    LambdaExpr(std::vector<Token> params, std::vector<StmtPtr> body)
+        : params(std::move(params)), body(std::move(body)) {}
+
+    Value accept(ASTVisitor& visitor) override;
+};
+
+class TernaryExpr : public Expr {
+public:
+    ExprPtr condition;
+    ExprPtr thenExpr;
+    ExprPtr elseExpr;
+
+    TernaryExpr(ExprPtr condition, ExprPtr thenExpr, ExprPtr elseExpr)
+        : condition(std::move(condition)), thenExpr(std::move(thenExpr)), elseExpr(std::move(elseExpr)) {}
+
+    Value accept(ASTVisitor& visitor) override;
+};
+
+class SetExpr : public Expr {
+public:
+    ExprPtr object;
+    Token name;
+    ExprPtr value;
+
+    SetExpr(ExprPtr object, Token name, ExprPtr value)
+        : object(std::move(object)), name(std::move(name)), value(std::move(value)) {}
+
+    Value accept(ASTVisitor& visitor) override;
+};
+
+class SuperExpr : public Expr {
+public:
+    Token keyword;
+    Token method;
+
+    SuperExpr(Token keyword, Token method)
+        : keyword(std::move(keyword)), method(std::move(method)) {}
+
+    Value accept(ASTVisitor& visitor) override;
+};
+
+class ThisExpr : public Expr {
+public:
+    Token keyword;
+
+    explicit ThisExpr(Token keyword) : keyword(std::move(keyword)) {}
+
+    Value accept(ASTVisitor& visitor) override;
+};
+
 class BinaryExpr : public Expr {
 public:
     ExprPtr left;
@@ -132,6 +187,65 @@ public:
 };
 
 // Statement types
+class ClassStmt : public Stmt {
+public:
+    Token name;
+    ExprPtr superclass;
+    std::vector<StmtPtr> methods;
+
+    ClassStmt(Token name, ExprPtr superclass, std::vector<StmtPtr> methods)
+        : name(std::move(name)), superclass(std::move(superclass)), methods(std::move(methods)) {}
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class ImportStmt : public Stmt {
+public:
+    Token module;
+    Token alias;
+    std::vector<Token> items;
+
+    ImportStmt(Token module, Token alias, std::vector<Token> items)
+        : module(std::move(module)), alias(std::move(alias)), items(std::move(items)) {}
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class TryStmt : public Stmt {
+public:
+    StmtPtr tryBlock;
+    Token catchVar;
+    StmtPtr catchBlock;
+    StmtPtr finallyBlock;
+
+    TryStmt(StmtPtr tryBlock, Token catchVar, StmtPtr catchBlock, StmtPtr finallyBlock)
+        : tryBlock(std::move(tryBlock)), catchVar(std::move(catchVar)), 
+          catchBlock(std::move(catchBlock)), finallyBlock(std::move(finallyBlock)) {}
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class ThrowStmt : public Stmt {
+public:
+    ExprPtr value;
+
+    explicit ThrowStmt(ExprPtr value) : value(std::move(value)) {}
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class SwitchStmt : public Stmt {
+public:
+    ExprPtr expr;
+    std::vector<std::pair<ExprPtr, StmtPtr>> cases;
+    StmtPtr defaultCase;
+
+    SwitchStmt(ExprPtr expr, std::vector<std::pair<ExprPtr, StmtPtr>> cases, StmtPtr defaultCase)
+        : expr(std::move(expr)), cases(std::move(cases)), defaultCase(std::move(defaultCase)) {}
+
+    void accept(ASTVisitor& visitor) override;
+};
+
 class ExpressionStmt : public Stmt {
 public:
     ExprPtr expression;
@@ -236,6 +350,11 @@ public:
     virtual ~ASTVisitor() = default;
 
     // Expression visitors
+    virtual Value visitLambdaExpr(LambdaExpr& expr) = 0;
+    virtual Value visitTernaryExpr(TernaryExpr& expr) = 0;
+    virtual Value visitSetExpr(SetExpr& expr) = 0;
+    virtual Value visitSuperExpr(SuperExpr& expr) = 0;
+    virtual Value visitThisExpr(ThisExpr& expr) = 0;
     virtual Value visitBinaryExpr(BinaryExpr& expr) = 0;
     virtual Value visitUnaryExpr(UnaryExpr& expr) = 0;
     virtual Value visitLiteralExpr(LiteralExpr& expr) = 0;
@@ -248,6 +367,11 @@ public:
     virtual Value visitIndexExpr(IndexExpr& expr) = 0;
 
     // Statement visitors
+    virtual void visitClassStmt(ClassStmt& stmt) = 0;
+    virtual void visitImportStmt(ImportStmt& stmt) = 0;
+    virtual void visitTryStmt(TryStmt& stmt) = 0;
+    virtual void visitThrowStmt(ThrowStmt& stmt) = 0;
+    virtual void visitSwitchStmt(SwitchStmt& stmt) = 0;
     virtual void visitExpressionStmt(ExpressionStmt& stmt) = 0;
     virtual void visitPrintStmt(PrintStmt& stmt) = 0;
     virtual void visitVarStmt(VarStmt& stmt) = 0;

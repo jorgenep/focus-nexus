@@ -26,6 +26,14 @@ bool Value::isList() const {
     return std::holds_alternative<std::shared_ptr<std::vector<Value>>>(value);
 }
 
+bool Value::isClass() const {
+    return std::holds_alternative<std::shared_ptr<FocusClass>>(value);
+}
+
+bool Value::isInstance() const {
+    return std::holds_alternative<std::shared_ptr<FocusInstance>>(value);
+}
+
 bool Value::asBool() const {
     return std::get<bool>(value);
 }
@@ -44,6 +52,14 @@ std::shared_ptr<Callable> Value::asCallable() const {
 
 std::shared_ptr<std::vector<Value>> Value::asList() const {
     return std::get<std::shared_ptr<std::vector<Value>>>(value);
+}
+
+std::shared_ptr<FocusClass> Value::asClass() const {
+    return std::get<std::shared_ptr<FocusClass>>(value);
+}
+
+std::shared_ptr<FocusInstance> Value::asInstance() const {
+    return std::get<std::shared_ptr<FocusInstance>>(value);
 }
 
 bool Value::isTruthy() const {
@@ -77,6 +93,8 @@ std::string Value::toString() const {
         oss << "]";
         return oss.str();
     }
+    if (isClass()) return "<class>";
+    if (isInstance()) return "<instance>";
     return "<unknown>";
 }
 
@@ -87,6 +105,8 @@ std::string Value::getType() const {
     if (isString()) return "string";
     if (isCallable()) return "function";
     if (isList()) return "list";
+    if (isClass()) return "class";
+    if (isInstance()) return "instance";
     return "unknown";
 }
 
@@ -99,6 +119,8 @@ bool Value::operator==(const Value& other) const {
     if (isString()) return asString() == other.asString();
     if (isCallable()) return asCallable() == other.asCallable();
     if (isList()) return asList() == other.asList();
+    if (isClass()) return asClass() == other.asClass();
+    if (isInstance()) return asInstance() == other.asInstance();
     
     return false;
 }

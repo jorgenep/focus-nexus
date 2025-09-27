@@ -14,3 +14,6 @@ std::shared_ptr<Callable> createStrFunction();
 std::shared_ptr<Callable> createNumFunction();
 std::shared_ptr<Callable> createTypeFunction();
 std::shared_ptr<Callable> createClockFunction();
+std::shared_ptr<Callable> createRangeFunction();
+std::shared_ptr<Callable> createMapFunction();
+std::shared_ptr<Callable> createFilterFunction();

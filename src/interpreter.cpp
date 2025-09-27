@@ -3,6 +3,7 @@
 #include "runtime/native_functions.hpp"
 #include "error/error_handler.hpp"
 #include "error/exceptions.hpp"
+#include <cmath>
 #include <iostream>
 #include <utility>
 
@@ -18,6 +19,9 @@ Interpreter::Interpreter() {
     globals->define("num", Value(createNumFunction()));
     globals->define("type", Value(createTypeFunction()));
     globals->define("clock", Value(createClockFunction()));
+    globals->define("range", Value(createRangeFunction()));
+    globals->define("map", Value(createMapFunction()));
+    globals->define("filter", Value(createFilterFunction()));
 }
 
 void Interpreter::interpret(const std::vector<StmtPtr>& statements) {
@@ -97,6 +101,30 @@ Value Interpreter::visitBinaryExpr(BinaryExpr& expr) {
         case TokenType::STAR:
             checkNumberOperands(expr.operator_, left, right);
             return Value(left.asNumber() * right.asNumber());
+        case TokenType::PERCENT:
+            checkNumberOperands(expr.operator_, left, right);
+            if (right.asNumber() == 0) {
+                throw RuntimeError(expr.operator_, "Modulo by zero");
+            }
+            return Value(fmod(left.asNumber(), right.asNumber()));
+        case TokenType::STAR_STAR:
+            checkNumberOperands(expr.operator_, left, right);
+            return Value(pow(left.asNumber(), right.asNumber()));
+        case TokenType::LEFT_SHIFT:
+            checkNumberOperands(expr.operator_, left, right);
+            return Value(static_cast<double>(static_cast<int>(left.asNumber()) << static_cast<int>(right.asNumber())));
+        case TokenType::RIGHT_SHIFT:
+            checkNumberOperands(expr.operator_, left, right);
+            return Value(static_cast<double>(static_cast<int>(left.asNumber()) >> static_cast<int>(right.asNumber())));
+        case TokenType::AMPERSAND:
+            checkNumberOperands(expr.operator_, left, right);
+            return Value(static_cast<double>(static_cast<int>(left.asNumber()) & static_cast<int>(right.asNumber())));
+        case TokenType::PIPE:
+            checkNumberOperands(expr.operator_, left, right);
+            return Value(static_cast<double>(static_cast<int>(left.asNumber()) | static_cast<int>(right.asNumber())));
+        case TokenType::CARET:
+            checkNumberOperands(expr.operator_, left, right);
+            return Value(static_cast<double>(static_cast<int>(left.asNumber()) ^ static_cast<int>(right.asNumber())));
         case TokenType::AND:
             if (!left.isTruthy()) return left;
             return right;
@@ -119,6 +147,9 @@ Value Interpreter::visitUnaryExpr(UnaryExpr& expr) {
         case TokenType::MINUS:
             checkNumberOperand(expr.operator_, right);
             return Value(-right.asNumber());
+        case TokenType::TILDE:
+            checkNumberOperand(expr.operator_, right);
+            return Value(static_cast<double>(~static_cast<int>(right.asNumber())));
         default:
             break;
     }
@@ -166,8 +197,13 @@ Value Interpreter::visitCallExpr(CallExpr& expr) {
 }
 
 Value Interpreter::visitGetExpr(GetExpr& expr) {
-    // Not implemented for this basic interpreter
-    throw RuntimeError(expr.name, "Property access not implemented");
+    Value object = evaluate(*expr.object);
+    
+    if (object.isInstance()) {
+        return object.asInstance()->get(expr.name);
+    }
+    
+    throw RuntimeError(expr.name, "Only instances have properties");
 }
 
 Value Interpreter::visitListExpr(ListExpr& expr) {
@@ -203,6 +239,41 @@ Value Interpreter::visitIndexExpr(IndexExpr& expr) {
     }
     
     return (*list)[idx];
+}
+
+Value Interpreter::visitLambdaExpr(LambdaExpr& expr) {
+    return Value(std::make_shared<Lambda>(expr.params, std::move(expr.body), environment));
+}
+
+Value Interpreter::visitTernaryExpr(TernaryExpr& expr) {
+    Value condition = evaluate(*expr.condition);
+    
+    if (condition.isTruthy()) {
+        return evaluate(*expr.thenExpr);
+    } else {
+        return evaluate(*expr.elseExpr);
+    }
+}
+
+Value Interpreter::visitSetExpr(SetExpr& expr) {
+    Value object = evaluate(*expr.object);
+    
+    if (!object.isInstance()) {
+        throw RuntimeError(expr.name, "Only instances have fields");
+    }
+    
+    Value value = evaluate(*expr.value);
+    object.asInstance()->set(expr.name, value);
+    return value;
+}
+
+Value Interpreter::visitSuperExpr(SuperExpr& expr) {
+    // Simplified super implementation
+    throw RuntimeError(expr.keyword, "Super not fully implemented");
+}
+
+Value Interpreter::visitThisExpr(ThisExpr& expr) {
+    return environment->get(expr.keyword);
 }
 
 void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
@@ -283,6 +354,89 @@ void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
     }
     
     throw ReturnValue(value);
+}
+
+void Interpreter::visitClassStmt(ClassStmt& stmt) {
+    std::shared_ptr<FocusClass> superclass = nullptr;
+    if (stmt.superclass != nullptr) {
+        Value superclassValue = evaluate(*stmt.superclass);
+        if (!superclassValue.isClass()) {
+            throw RuntimeError(Token(TokenType::IDENTIFIER, "superclass", "", 0, 0), 
+                              "Superclass must be a class");
+        }
+        superclass = superclassValue.asClass();
+    }
+    
+    environment->define(stmt.name.lexeme, Value());
+    
+    std::unordered_map<std::string, std::shared_ptr<Function>> methods;
+    for (const auto& method : stmt.methods) {
+        auto functionStmt = dynamic_cast<FunctionStmt*>(method.get());
+        if (functionStmt) {
+            auto function = std::make_shared<Function>(functionStmt, environment);
+            methods[functionStmt->name.lexeme] = function;
+        }
+    }
+    
+    auto klass = std::make_shared<FocusClass>(stmt.name.lexeme, superclass, methods);
+    environment->assign(stmt.name, Value(klass));
+}
+
+void Interpreter::visitImportStmt(ImportStmt& stmt) {
+    // Simplified import - just define the module name
+    environment->define(stmt.module.lexeme, Value("imported_module"));
+    
+    if (!stmt.alias.lexeme.empty()) {
+        environment->define(stmt.alias.lexeme, Value("imported_module"));
+    }
+}
+
+void Interpreter::visitTryStmt(TryStmt& stmt) {
+    try {
+        execute(*stmt.tryBlock);
+    } catch (const RuntimeError& error) {
+        if (stmt.catchBlock != nullptr) {
+            auto catchEnv = std::make_shared<Environment>(environment);
+            if (!stmt.catchVar.lexeme.empty()) {
+                catchEnv->define(stmt.catchVar.lexeme, Value(error.what()));
+            }
+            
+            auto previous = environment;
+            environment = catchEnv;
+            try {
+                execute(*stmt.catchBlock);
+            } catch (...) {
+                environment = previous;
+                throw;
+            }
+            environment = previous;
+        }
+    }
+    
+    if (stmt.finallyBlock != nullptr) {
+        execute(*stmt.finallyBlock);
+    }
+}
+
+void Interpreter::visitThrowStmt(ThrowStmt& stmt) {
+    Value value = evaluate(*stmt.value);
+    throw RuntimeError(Token(TokenType::THROW, "throw", "", 0, 0), value.toString());
+}
+
+void Interpreter::visitSwitchStmt(SwitchStmt& stmt) {
+    Value switchValue = evaluate(*stmt.expr);
+    
+    for (const auto& caseStmt : stmt.cases) {
+        Value caseValue = evaluate(*caseStmt.first);
+        if (isEqual(switchValue, caseValue)) {
+            execute(*caseStmt.second);
+            return;
+        }
+    }
+    
+    if (stmt.defaultCase != nullptr) {
+        execute(*stmt.defaultCase);
+    }
 }
 
 bool Interpreter::isEqual(const Value& a, const Value& b) {

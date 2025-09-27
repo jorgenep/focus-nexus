@@ -5,6 +5,8 @@
 #include <variant>
 
 class Callable;
+class FocusClass;
+class FocusInstance;
 
 using ValueVariant = std::variant<
     std::monostate,  // nil
@@ -12,7 +14,9 @@ using ValueVariant = std::variant<
     double,
     std::string,
     std::shared_ptr<Callable>,
-    std::shared_ptr<std::vector<class Value>>
+    std::shared_ptr<std::vector<class Value>>,
+    std::shared_ptr<FocusClass>,
+    std::shared_ptr<FocusInstance>
 >;
 
 class Value {
@@ -27,6 +31,8 @@ public:
     explicit Value(const std::string& s) : value(s) {}
     explicit Value(std::shared_ptr<Callable> c) : value(c) {}
     explicit Value(std::shared_ptr<std::vector<Value>> l) : value(l) {}
+    explicit Value(std::shared_ptr<FocusClass> c) : value(c) {}
+    explicit Value(std::shared_ptr<FocusInstance> i) : value(i) {}
 
     // Type checking
     [[nodiscard]] bool isNil() const;
@@ -35,6 +41,8 @@ public:
     [[nodiscard]] bool isString() const;
     [[nodiscard]] bool isCallable() const;
     [[nodiscard]] bool isList() const;
+    [[nodiscard]] bool isClass() const;
+    [[nodiscard]] bool isInstance() const;
 
     // Value extraction
     [[nodiscard]] bool asBool() const;
@@ -42,6 +50,8 @@ public:
     [[nodiscard]] std::string asString() const;
     [[nodiscard]] std::shared_ptr<Callable> asCallable() const;
     [[nodiscard]] std::shared_ptr<std::vector<Value>> asList() const;
+    [[nodiscard]] std::shared_ptr<FocusClass> asClass() const;
+    [[nodiscard]] std::shared_ptr<FocusInstance> asInstance() const;
 
     // Utility methods
     [[nodiscard]] bool isTruthy() const;
