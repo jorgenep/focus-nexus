@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ejorg\OneDrive\Documents\GitHub\focus-nexus\build\CMakeFiles\73c6eb1aa02dbb7ea1461b4a22b3cf9f\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{1F469558-0BE7-303E-8789-3C35B5BEDED6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
