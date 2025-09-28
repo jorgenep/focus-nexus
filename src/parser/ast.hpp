@@ -179,6 +179,34 @@ public:
     Value accept(ASTVisitor& visitor) override;
 };
 
+// Library integration expressions
+class ExternExpr : public Expr {
+public:
+    Token library;
+    Token function;
+    std::vector<ExprPtr> arguments;
+    std::string libraryType; // "cpp", "python", "java", "custom"
+
+    ExternExpr(Token library, Token function, std::vector<ExprPtr> arguments, std::string libraryType)
+        : library(std::move(library)), function(std::move(function)), 
+          arguments(std::move(arguments)), libraryType(std::move(libraryType)) {}
+
+    Value accept(ASTVisitor& visitor) override;
+};
+
+class LoadLibraryExpr : public Expr {
+public:
+    Token libraryPath;
+    Token alias;
+    std::string libraryType;
+
+    LoadLibraryExpr(Token libraryPath, Token alias, std::string libraryType)
+        : libraryPath(std::move(libraryPath)), alias(std::move(alias)), 
+          libraryType(std::move(libraryType)) {}
+
+    Value accept(ASTVisitor& visitor) override;
+};
+
 // Base statement class
 class Stmt {
 public:
@@ -344,6 +372,33 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
+// Library integration statements
+class ExternStmt : public Stmt {
+public:
+    Token libraryPath;
+    Token alias;
+    std::string libraryType;
+    std::vector<Token> functions;
+
+    ExternStmt(Token libraryPath, Token alias, std::string libraryType, std::vector<Token> functions)
+        : libraryPath(std::move(libraryPath)), alias(std::move(alias)), 
+          libraryType(std::move(libraryType)), functions(std::move(functions)) {}
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class PluginStmt : public Stmt {
+public:
+    Token pluginPath;
+    Token alias;
+    std::vector<Token> exports;
+
+    PluginStmt(Token pluginPath, Token alias, std::vector<Token> exports)
+        : pluginPath(std::move(pluginPath)), alias(std::move(alias)), exports(std::move(exports)) {}
+
+    void accept(ASTVisitor& visitor) override;
+};
+
 // Visitor interface
 class ASTVisitor {
 public:
@@ -365,6 +420,8 @@ public:
     virtual Value visitGetExpr(GetExpr& expr) = 0;
     virtual Value visitListExpr(ListExpr& expr) = 0;
     virtual Value visitIndexExpr(IndexExpr& expr) = 0;
+    virtual Value visitExternExpr(ExternExpr& expr) = 0;
+    virtual Value visitLoadLibraryExpr(LoadLibraryExpr& expr) = 0;
 
     // Statement visitors
     virtual void visitClassStmt(ClassStmt& stmt) = 0;
@@ -372,6 +429,8 @@ public:
     virtual void visitTryStmt(TryStmt& stmt) = 0;
     virtual void visitThrowStmt(ThrowStmt& stmt) = 0;
     virtual void visitSwitchStmt(SwitchStmt& stmt) = 0;
+    virtual void visitExternStmt(ExternStmt& stmt) = 0;
+    virtual void visitPluginStmt(PluginStmt& stmt) = 0;
     virtual void visitExpressionStmt(ExpressionStmt& stmt) = 0;
     virtual void visitPrintStmt(PrintStmt& stmt) = 0;
     virtual void visitVarStmt(VarStmt& stmt) = 0;

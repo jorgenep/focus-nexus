@@ -32,6 +32,8 @@ public:
     Value visitGetExpr(GetExpr& expr) override;
     Value visitListExpr(ListExpr& expr) override;
     Value visitIndexExpr(IndexExpr& expr) override;
+    Value visitExternExpr(ExternExpr& expr) override;
+    Value visitLoadLibraryExpr(LoadLibraryExpr& expr) override;
     
     // Statement visitors
     void visitClassStmt(ClassStmt& stmt) override;
@@ -39,6 +41,8 @@ public:
     void visitTryStmt(TryStmt& stmt) override;
     void visitThrowStmt(ThrowStmt& stmt) override;
     void visitSwitchStmt(SwitchStmt& stmt) override;
+    void visitExternStmt(ExternStmt& stmt) override;
+    void visitPluginStmt(PluginStmt& stmt) override;
     void visitExpressionStmt(ExpressionStmt& stmt) override;
     void visitPrintStmt(PrintStmt& stmt) override;
     void visitVarStmt(VarStmt& stmt) override;

@@ -1,6 +1,7 @@
 #include "interpreter.hpp"
 #include "runtime/callable.hpp"
 #include "runtime/native_functions.hpp"
+#include "runtime/library_manager.hpp"
 #include "error/error_handler.hpp"
 #include "error/exceptions.hpp"
 #include <cmath>
@@ -241,6 +242,37 @@ Value Interpreter::visitIndexExpr(IndexExpr& expr) {
     return (*list)[idx];
 }
 
+Value Interpreter::visitExternExpr(ExternExpr& expr) {
+    std::vector<Value> arguments;
+    for (const auto& argument : expr.arguments) {
+        arguments.push_back(evaluate(*argument));
+    }
+    
+    try {
+        return LibraryManager::getInstance().callFunction(
+            expr.library.lexeme, 
+            expr.function.lexeme, 
+            arguments
+        );
+    } catch (const std::exception& e) {
+        throw RuntimeError(expr.function, "External function call failed: " + std::string(e.what()));
+    }
+}
+
+Value Interpreter::visitLoadLibraryExpr(LoadLibraryExpr& expr) {
+    bool success = LibraryManager::getInstance().loadLibrary(
+        expr.alias.lexeme,
+        expr.libraryPath.literal,
+        expr.libraryType
+    );
+    
+    if (!success) {
+        throw RuntimeError(expr.alias, "Failed to load library: " + expr.libraryPath.literal);
+    }
+    
+    return Value(true);
+}
+
 Value Interpreter::visitLambdaExpr(LambdaExpr& expr) {
     return Value(std::make_shared<Lambda>(expr.params, std::move(expr.body), environment));
 }
@@ -380,6 +412,36 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     
     auto klass = std::make_shared<FocusClass>(stmt.name.lexeme, superclass, methods);
     environment->assign(stmt.name, Value(klass));
+}
+
+void Interpreter::visitExternStmt(ExternStmt& stmt) {
+    bool success = LibraryManager::getInstance().loadLibrary(
+        stmt.alias.lexeme,
+        stmt.libraryPath.literal,
+        stmt.libraryType
+    );
+    
+    if (!success) {
+        throw RuntimeError(stmt.alias, "Failed to load external library: " + stmt.libraryPath.literal);
+    }
+    
+    // Define the library alias in the environment
+    environment->define(stmt.alias.lexeme, Value("library:" + stmt.alias.lexeme));
+}
+
+void Interpreter::visitPluginStmt(PluginStmt& stmt) {
+    bool success = LibraryManager::getInstance().loadLibrary(
+        stmt.alias.lexeme,
+        stmt.pluginPath.literal,
+        "custom"
+    );
+    
+    if (!success) {
+        throw RuntimeError(stmt.alias, "Failed to load plugin: " + stmt.pluginPath.literal);
+    }
+    
+    // Define the plugin alias in the environment
+    environment->define(stmt.alias.lexeme, Value("plugin:" + stmt.alias.lexeme));
 }
 
 void Interpreter::visitImportStmt(ImportStmt& stmt) {

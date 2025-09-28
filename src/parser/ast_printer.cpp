@@ -61,6 +61,14 @@ Value IndexExpr::accept(ASTVisitor& visitor) {
     return visitor.visitIndexExpr(*this);
 }
 
+Value ExternExpr::accept(ASTVisitor& visitor) {
+    return visitor.visitExternExpr(*this);
+}
+
+Value LoadLibraryExpr::accept(ASTVisitor& visitor) {
+    return visitor.visitLoadLibraryExpr(*this);
+}
+
 void ClassStmt::accept(ASTVisitor& visitor) {
     visitor.visitClassStmt(*this);
 }
@@ -79,6 +87,14 @@ void ThrowStmt::accept(ASTVisitor& visitor) {
 
 void SwitchStmt::accept(ASTVisitor& visitor) {
     visitor.visitSwitchStmt(*this);
+}
+
+void ExternStmt::accept(ASTVisitor& visitor) {
+    visitor.visitExternStmt(*this);
+}
+
+void PluginStmt::accept(ASTVisitor& visitor) {
+    visitor.visitPluginStmt(*this);
 }
 
 void ExpressionStmt::accept(ASTVisitor& visitor) {

@@ -50,6 +50,8 @@ private:
     StmtPtr tryStatement();
     StmtPtr throwStatement();
     StmtPtr switchStatement();
+    StmtPtr externDeclaration();
+    StmtPtr pluginDeclaration();
 
 public:
     explicit Parser(std::vector<Token> tokens);

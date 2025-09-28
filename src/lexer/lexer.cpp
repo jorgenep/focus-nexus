@@ -39,7 +39,15 @@ std::unordered_map<std::string, TokenType> TokenUtils::keywords = {
     {"protected", TokenType::PROTECTED},
     {"const", TokenType::CONST},
     {"async", TokenType::ASYNC},
-    {"await", TokenType::AWAIT}
+    {"await", TokenType::AWAIT},
+    {"extern", TokenType::EXTERN},
+    {"library", TokenType::LIBRARY},
+    {"native", TokenType::NATIVE},
+    {"plugin", TokenType::PLUGIN},
+    {"module", TokenType::MODULE},
+    {"load_library", TokenType::LOAD_LIBRARY},
+    {"call_native", TokenType::CALL_NATIVE},
+    {"bind", TokenType::BIND}
 };
 
 std::string TokenUtils::tokenTypeToString(TokenType type) {
