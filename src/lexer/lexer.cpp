@@ -20,7 +20,34 @@ std::unordered_map<std::string, TokenType> TokenUtils::keywords = {
     {"while", TokenType::WHILE},
     {"set", TokenType::LET},
     {"break", TokenType::BREAK},
-    {"continue", TokenType::CONTINUE}
+    {"continue", TokenType::CONTINUE},
+    {"import", TokenType::IMPORT},
+    {"from", TokenType::FROM},
+    {"as", TokenType::AS},
+    {"try", TokenType::TRY},
+    {"catch", TokenType::CATCH},
+    {"finally", TokenType::FINALLY},
+    {"throw", TokenType::THROW},
+    {"lambda", TokenType::LAMBDA},
+    {"switch", TokenType::SWITCH},
+    {"case", TokenType::CASE},
+    {"default", TokenType::DEFAULT},
+    {"extends", TokenType::EXTENDS},
+    {"static", TokenType::STATIC},
+    {"private", TokenType::PRIVATE},
+    {"public", TokenType::PUBLIC},
+    {"protected", TokenType::PROTECTED},
+    {"const", TokenType::CONST},
+    {"async", TokenType::ASYNC},
+    {"await", TokenType::AWAIT},
+    {"extern", TokenType::EXTERN},
+    {"library", TokenType::LIBRARY},
+    {"native", TokenType::NATIVE},
+    {"plugin", TokenType::PLUGIN},
+    {"module", TokenType::MODULE},
+    {"load_library", TokenType::LOAD_LIBRARY},
+    {"call_native", TokenType::CALL_NATIVE},
+    {"bind", TokenType::BIND}
 };
 
 std::string TokenUtils::tokenTypeToString(TokenType type) {
@@ -92,11 +119,44 @@ std::vector<Token> Lexer::scanTokens() {
             case ']': addToken(TokenType::RIGHT_BRACKET); break;
             case ',': addToken(TokenType::COMMA); break;
             case '.': addToken(TokenType::DOT); break;
-            case '-': addToken(TokenType::MINUS); break;
-            case '+': addToken(TokenType::PLUS); break;
             case ';': addToken(TokenType::SEMICOLON); break;
-            case '*': addToken(TokenType::STAR); break;
             case ':': addToken(TokenType::COLON); break;
+            case '%': addToken(TokenType::PERCENT); break;
+            case '^': addToken(TokenType::CARET); break;
+            case '&': addToken(TokenType::AMPERSAND); break;
+            case '|': addToken(TokenType::PIPE); break;
+            case '~': addToken(TokenType::TILDE); break;
+            case '?': addToken(TokenType::QUESTION); break;
+            case '@': addToken(TokenType::AT); break;
+            case '-':
+                if (match('-')) {
+                    addToken(TokenType::MINUS_MINUS);
+                } else if (match('=')) {
+                    addToken(TokenType::MINUS_EQUAL);
+                } else if (match('>')) {
+                    addToken(TokenType::ARROW);
+                } else {
+                    addToken(TokenType::MINUS);
+                }
+                break;
+            case '+':
+                if (match('+')) {
+                    addToken(TokenType::PLUS_PLUS);
+                } else if (match('=')) {
+                    addToken(TokenType::PLUS_EQUAL);
+                } else {
+                    addToken(TokenType::PLUS);
+                }
+                break;
+            case '*':
+                if (match('*')) {
+                    addToken(TokenType::STAR_STAR);
+                } else if (match('=')) {
+                    addToken(TokenType::STAR_EQUAL);
+                } else {
+                    addToken(TokenType::STAR);
+                }
+                break;
             case '!':
                 addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG);
                 break;
@@ -104,10 +164,22 @@ std::vector<Token> Lexer::scanTokens() {
                 addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL);
                 break;
             case '<':
-                addToken(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS);
+                if (match('=')) {
+                    addToken(TokenType::LESS_EQUAL);
+                } else if (match('<')) {
+                    addToken(TokenType::LEFT_SHIFT);
+                } else {
+                    addToken(TokenType::LESS);
+                }
                 break;
             case '>':
-                addToken(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER);
+                if (match('=')) {
+                    addToken(TokenType::GREATER_EQUAL);
+                } else if (match('>')) {
+                    addToken(TokenType::RIGHT_SHIFT);
+                } else {
+                    addToken(TokenType::GREATER);
+                }
                 break;
             case '/':
                 if (match('/')) {
@@ -125,6 +197,8 @@ std::vector<Token> Lexer::scanTokens() {
                         advance(); // *
                         advance(); // /
                     }
+                } else if (match('=')) {
+                    addToken(TokenType::SLASH_EQUAL);
                 } else {
                     addToken(TokenType::SLASH);
                 }

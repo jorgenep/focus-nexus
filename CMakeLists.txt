@@ -13,6 +13,7 @@ add_executable(focusNexus
         src/runtime/callable.cpp
         src/runtime/environment.cpp
         src/runtime/native_functions.cpp
+        src/runtime/library_manager.cpp
         src/runtime/value.cpp
         src/error/error_handler.cpp
         src/utils/file_utils.cpp
@@ -21,3 +22,29 @@ add_executable(focusNexus
 
 # Include directories so headers can be found
 target_include_directories(focusNexus PRIVATE src)
+
+# Link system libraries for dynamic loading
+if(WIN32)
+    target_link_libraries(focusNexus PRIVATE kernel32)
+else()
+    target_link_libraries(focusNexus PRIVATE dl)
+endif()
+
+# Optional: Link Python libraries if available
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(PYTHON python3)
+    if(PYTHON_FOUND)
+        target_include_directories(focusNexus PRIVATE ${PYTHON_INCLUDE_DIRS})
+        target_link_libraries(focusNexus PRIVATE ${PYTHON_LIBRARIES})
+        target_compile_definitions(focusNexus PRIVATE PYTHON_SUPPORT)
+    endif()
+endif()
+
+# Optional: Link Java JNI if available
+find_package(JNI QUIET)
+if(JNI_FOUND)
+    target_include_directories(focusNexus PRIVATE ${JNI_INCLUDE_DIRS})
+    target_link_libraries(focusNexus PRIVATE ${JNI_LIBRARIES})
+    target_compile_definitions(focusNexus PRIVATE JNI_SUPPORT)
+endif()

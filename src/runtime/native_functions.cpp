@@ -117,3 +117,91 @@ std::shared_ptr<Callable> createClockFunction() {
         "clock"
     );
 }
+
+std::shared_ptr<Callable> createRangeFunction() {
+    return std::make_shared<NativeFunction>(
+        [](Interpreter& interpreter, std::vector<Value> arguments) -> Value {
+            if (arguments.size() < 1 || arguments.size() > 3) {
+                throw std::runtime_error("range() takes 1 to 3 arguments");
+            }
+            
+            double start = 0, stop, step = 1;
+            
+            if (arguments.size() == 1) {
+                stop = arguments[0].asNumber();
+            } else if (arguments.size() == 2) {
+                start = arguments[0].asNumber();
+                stop = arguments[1].asNumber();
+            } else {
+                start = arguments[0].asNumber();
+                stop = arguments[1].asNumber();
+                step = arguments[2].asNumber();
+            }
+            
+            auto list = std::make_shared<std::vector<Value>>();
+            for (double i = start; (step > 0 ? i < stop : i > stop); i += step) {
+                list->push_back(Value(i));
+            }
+            
+            return Value(list);
+        },
+        -1,
+        "range"
+    );
+}
+
+std::shared_ptr<Callable> createMapFunction() {
+    return std::make_shared<NativeFunction>(
+        [](Interpreter& interpreter, std::vector<Value> arguments) -> Value {
+            if (arguments.size() != 2) {
+                throw std::runtime_error("map() takes exactly 2 arguments");
+            }
+            
+            if (!arguments[0].isCallable() || !arguments[1].isList()) {
+                throw std::runtime_error("map() requires a function and a list");
+            }
+            
+            auto func = arguments[0].asCallable();
+            auto list = arguments[1].asList();
+            auto result = std::make_shared<std::vector<Value>>();
+            
+            for (const auto& item : *list) {
+                std::vector<Value> args = {item};
+                result->push_back(func->call(interpreter, args));
+            }
+            
+            return Value(result);
+        },
+        2,
+        "map"
+    );
+}
+
+std::shared_ptr<Callable> createFilterFunction() {
+    return std::make_shared<NativeFunction>(
+        [](Interpreter& interpreter, std::vector<Value> arguments) -> Value {
+            if (arguments.size() != 2) {
+                throw std::runtime_error("filter() takes exactly 2 arguments");
+            }
+            
+            if (!arguments[0].isCallable() || !arguments[1].isList()) {
+                throw std::runtime_error("filter() requires a function and a list");
+            }
+            
+            auto func = arguments[0].asCallable();
+            auto list = arguments[1].asList();
+            auto result = std::make_shared<std::vector<Value>>();
+            
+            for (const auto& item : *list) {
+                std::vector<Value> args = {item};
+                if (func->call(interpreter, args).isTruthy()) {
+                    result->push_back(item);
+                }
+            }
+            
+            return Value(result);
+        },
+        2,
+        "filter"
+    );
+}

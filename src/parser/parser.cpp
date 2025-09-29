@@ -28,6 +28,10 @@ std::vector<StmtPtr> Parser::parse() {
 
 StmtPtr Parser::declaration() {
     try {
+        if (match({TokenType::CLASS})) return classDeclaration();
+        if (match({TokenType::EXTERN})) return externDeclaration();
+        if (match({TokenType::PLUGIN})) return pluginDeclaration();
+        if (match({TokenType::IMPORT})) return importStatement();
         if (match({TokenType::FUNCTION})) return functionStatement("function");
         if (match({TokenType::VAR, TokenType::LET})) return varDeclaration();
         return statement();
@@ -38,6 +42,9 @@ StmtPtr Parser::declaration() {
 }
 
 StmtPtr Parser::statement() {
+    if (match({TokenType::TRY})) return tryStatement();
+    if (match({TokenType::THROW})) return throwStatement();
+    if (match({TokenType::SWITCH})) return switchStatement();
     if (match({TokenType::IF})) return ifStatement();
     if (match({TokenType::PRINT})) return printStatement();
     if (match({TokenType::RETURN})) return returnStatement();
@@ -181,8 +188,173 @@ StmtPtr Parser::blockStatement() {
     return std::make_unique<BlockStmt>(std::move(statements));
 }
 
+StmtPtr Parser::classDeclaration() {
+    Token name = consume(TokenType::IDENTIFIER, "Expected class name");
+    
+    ExprPtr superclass = nullptr;
+    if (match({TokenType::EXTENDS})) {
+        consume(TokenType::IDENTIFIER, "Expected superclass name");
+        superclass = std::make_unique<VariableExpr>(previous());
+    }
+    
+    consume(TokenType::COLON, "Expected ':' before class body");
+    consume(TokenType::NEWLINE, "Expected newline after ':'");
+    consume(TokenType::LEFT_BRACE, "Expected '{' before class body");
+    
+    std::vector<StmtPtr> methods;
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+        if (match({TokenType::NEWLINE})) continue;
+        methods.push_back(functionStatement("method"));
+    }
+    
+    consume(TokenType::RIGHT_BRACE, "Expected '}' after class body");
+    return std::make_unique<ClassStmt>(name, std::move(superclass), std::move(methods));
+}
+
+StmtPtr Parser::importStatement() {
+    Token module = consume(TokenType::IDENTIFIER, "Expected module name");
+    Token alias;
+    std::vector<Token> items;
+    
+    if (match({TokenType::AS})) {
+        alias = consume(TokenType::IDENTIFIER, "Expected alias name");
+    }
+    
+    consume(TokenType::NEWLINE, "Expected newline after import");
+    return std::make_unique<ImportStmt>(module, alias, std::move(items));
+}
+
+StmtPtr Parser::tryStatement() {
+    consume(TokenType::COLON, "Expected ':' after 'try'");
+    consume(TokenType::NEWLINE, "Expected newline after ':'");
+    
+    auto tryBlock = statement();
+    
+    Token catchVar;
+    StmtPtr catchBlock = nullptr;
+    
+    if (match({TokenType::CATCH})) {
+        if (match({TokenType::LEFT_PAREN})) {
+            catchVar = consume(TokenType::IDENTIFIER, "Expected variable name");
+            consume(TokenType::RIGHT_PAREN, "Expected ')' after catch variable");
+        }
+        consume(TokenType::COLON, "Expected ':' after catch");
+        consume(TokenType::NEWLINE, "Expected newline after ':'");
+        catchBlock = statement();
+    }
+    
+    StmtPtr finallyBlock = nullptr;
+    if (match({TokenType::FINALLY})) {
+        consume(TokenType::COLON, "Expected ':' after 'finally'");
+        consume(TokenType::NEWLINE, "Expected newline after ':'");
+        finallyBlock = statement();
+    }
+    
+    return std::make_unique<TryStmt>(std::move(tryBlock), catchVar, std::move(catchBlock), std::move(finallyBlock));
+}
+
+StmtPtr Parser::throwStatement() {
+    auto value = expression();
+    consume(TokenType::NEWLINE, "Expected newline after throw expression");
+    return std::make_unique<ThrowStmt>(std::move(value));
+}
+
+StmtPtr Parser::switchStatement() {
+    auto expr = expression();
+    consume(TokenType::COLON, "Expected ':' after switch expression");
+    consume(TokenType::NEWLINE, "Expected newline after ':'");
+    consume(TokenType::LEFT_BRACE, "Expected '{' before switch body");
+    
+    std::vector<std::pair<ExprPtr, StmtPtr>> cases;
+    StmtPtr defaultCase = nullptr;
+    
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+        if (match({TokenType::NEWLINE})) continue;
+        
+        if (match({TokenType::CASE})) {
+            auto caseExpr = expression();
+            consume(TokenType::COLON, "Expected ':' after case value");
+            consume(TokenType::NEWLINE, "Expected newline after ':'");
+            auto caseStmt = statement();
+            cases.emplace_back(std::move(caseExpr), std::move(caseStmt));
+        } else if (match({TokenType::DEFAULT})) {
+            consume(TokenType::COLON, "Expected ':' after 'default'");
+            consume(TokenType::NEWLINE, "Expected newline after ':'");
+            defaultCase = statement();
+        } else {
+            break;
+        }
+    }
+    
+    consume(TokenType::RIGHT_BRACE, "Expected '}' after switch body");
+    return std::make_unique<SwitchStmt>(std::move(expr), std::move(cases), std::move(defaultCase));
+}
+
+StmtPtr Parser::externDeclaration() {
+    Token libraryPath = consume(TokenType::STRING, "Expected library path");
+    
+    consume(TokenType::AS, "Expected 'as' after library path");
+    Token alias = consume(TokenType::IDENTIFIER, "Expected library alias");
+    
+    std::string libraryType = "cpp"; // default
+    if (match({TokenType::COLON})) {
+        Token typeToken = consume(TokenType::IDENTIFIER, "Expected library type");
+        libraryType = typeToken.lexeme;
+    }
+    
+    std::vector<Token> functions;
+    if (match({TokenType::LEFT_BRACE})) {
+        while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+            if (match({TokenType::NEWLINE})) continue;
+            functions.push_back(consume(TokenType::IDENTIFIER, "Expected function name"));
+            if (!check(TokenType::RIGHT_BRACE)) {
+                consume(TokenType::COMMA, "Expected ',' between function names");
+            }
+        }
+        consume(TokenType::RIGHT_BRACE, "Expected '}' after function list");
+    }
+    
+    consume(TokenType::NEWLINE, "Expected newline after extern declaration");
+    return std::make_unique<ExternStmt>(libraryPath, alias, libraryType, std::move(functions));
+}
+
+StmtPtr Parser::pluginDeclaration() {
+    Token pluginPath = consume(TokenType::STRING, "Expected plugin path");
+    
+    consume(TokenType::AS, "Expected 'as' after plugin path");
+    Token alias = consume(TokenType::IDENTIFIER, "Expected plugin alias");
+    
+    std::vector<Token> exports;
+    if (match({TokenType::LEFT_BRACE})) {
+        while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+            if (match({TokenType::NEWLINE})) continue;
+            exports.push_back(consume(TokenType::IDENTIFIER, "Expected export name"));
+            if (!check(TokenType::RIGHT_BRACE)) {
+                consume(TokenType::COMMA, "Expected ',' between export names");
+            }
+        }
+        consume(TokenType::RIGHT_BRACE, "Expected '}' after export list");
+    }
+    
+    consume(TokenType::NEWLINE, "Expected newline after plugin declaration");
+    return std::make_unique<PluginStmt>(pluginPath, alias, std::move(exports));
+}
+
 ExprPtr Parser::expression() {
-    return assignment();
+    return ternary();
+}
+
+ExprPtr Parser::ternary() {
+    auto expr = assignment();
+    
+    if (match({TokenType::QUESTION})) {
+        auto thenExpr = expression();
+        consume(TokenType::COLON, "Expected ':' after ternary then expression");
+        auto elseExpr = ternary();
+        return std::make_unique<TernaryExpr>(std::move(expr), std::move(thenExpr), std::move(elseExpr));
+    }
+    
+    return expr;
 }
 
 ExprPtr Parser::assignment() {
@@ -196,6 +368,8 @@ ExprPtr Parser::assignment() {
             Token name = var->name;
             //expr.release(); // Release ownership
             return std::make_unique<AssignExpr>(name, std::move(value));
+        } else if (auto get = dynamic_cast<GetExpr*>(expr.get())) {
+            return std::make_unique<SetExpr>(std::move(get->object), get->name, std::move(value));
         }
         
         ErrorHandler::error(equals.line, equals.column, "Invalid assignment target");
@@ -296,6 +470,9 @@ ExprPtr Parser::call() {
             auto index = expression();
             consume(TokenType::RIGHT_BRACKET, "Expected ']' after index");
             expr = std::make_unique<IndexExpr>(std::move(expr), std::move(index));
+        } else if (match({TokenType::DOT})) {
+            Token name = consume(TokenType::IDENTIFIER, "Expected property name after '.'");
+            expr = std::make_unique<GetExpr>(std::move(expr), name);
         } else {
             break;
         }
@@ -324,6 +501,45 @@ ExprPtr Parser::primary() {
     if (match({TokenType::FALSE})) return std::make_unique<LiteralExpr>(Value(false));
     if (match({TokenType::TRUE})) return std::make_unique<LiteralExpr>(Value(true));
     if (match({TokenType::NIL})) return std::make_unique<LiteralExpr>(Value());
+    if (match({TokenType::THIS})) return std::make_unique<ThisExpr>(previous());
+    if (match({TokenType::SUPER})) {
+        Token keyword = previous();
+        consume(TokenType::DOT, "Expected '.' after 'super'");
+        Token method = consume(TokenType::IDENTIFIER, "Expected superclass method name");
+        return std::make_unique<SuperExpr>(keyword, method);
+    }
+    
+    if (match({TokenType::LAMBDA})) {
+        consume(TokenType::LEFT_PAREN, "Expected '(' after 'lambda'");
+        std::vector<Token> parameters;
+        
+        if (!check(TokenType::RIGHT_PAREN)) {
+            do {
+                parameters.push_back(consume(TokenType::IDENTIFIER, "Expected parameter name"));
+            } while (match({TokenType::COMMA}));
+        }
+        
+        consume(TokenType::RIGHT_PAREN, "Expected ')' after parameters");
+        consume(TokenType::COLON, "Expected ':' before lambda body");
+        consume(TokenType::NEWLINE, "Expected newline after ':'");
+        
+        std::vector<StmtPtr> body;
+        if (match({TokenType::LEFT_BRACE})) {
+            while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+                if (match({TokenType::NEWLINE})) continue;
+                if (auto stmt = declaration()) {
+                    body.push_back(std::move(stmt));
+                }
+            }
+            consume(TokenType::RIGHT_BRACE, "Expected '}' after lambda body");
+        } else {
+            // Single expression lambda
+            auto expr = expression();
+            body.push_back(std::make_unique<ReturnStmt>(Token(TokenType::RETURN, "return", "", 0, 0), std::move(expr)));
+        }
+        
+        return std::make_unique<LambdaExpr>(std::move(parameters), std::move(body));
+    }
     
     if (match({TokenType::NUMBER})) {
         double value = std::stod(previous().literal);
@@ -355,6 +571,39 @@ ExprPtr Parser::primary() {
         
         consume(TokenType::RIGHT_BRACKET, "Expected ']' after list elements");
         return std::make_unique<ListExpr>(std::move(elements));
+    }
+    
+    if (match({TokenType::LOAD_LIBRARY})) {
+        consume(TokenType::LEFT_PAREN, "Expected '(' after 'load_library'");
+        Token libraryPath = consume(TokenType::STRING, "Expected library path");
+        consume(TokenType::COMMA, "Expected ',' after library path");
+        Token alias = consume(TokenType::IDENTIFIER, "Expected library alias");
+        
+        std::string libraryType = "cpp";
+        if (match({TokenType::COMMA})) {
+            Token typeToken = consume(TokenType::STRING, "Expected library type");
+            libraryType = typeToken.literal;
+        }
+        
+        consume(TokenType::RIGHT_PAREN, "Expected ')' after load_library arguments");
+        return std::make_unique<LoadLibraryExpr>(libraryPath, alias, libraryType);
+    }
+    
+    if (match({TokenType::CALL_NATIVE})) {
+        consume(TokenType::LEFT_PAREN, "Expected '(' after 'call_native'");
+        Token library = consume(TokenType::IDENTIFIER, "Expected library name");
+        consume(TokenType::DOT, "Expected '.' after library name");
+        Token function = consume(TokenType::IDENTIFIER, "Expected function name");
+        
+        std::vector<ExprPtr> arguments;
+        if (match({TokenType::COMMA})) {
+            do {
+                arguments.push_back(expression());
+            } while (match({TokenType::COMMA}));
+        }
+        
+        consume(TokenType::RIGHT_PAREN, "Expected ')' after call_native arguments");
+        return std::make_unique<ExternExpr>(library, function, std::move(arguments), "native");
     }
     
     throw ParseError("Expected expression at line " + std::to_string(peek().line));

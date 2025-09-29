@@ -20,6 +20,7 @@ private:
 
     // Expression parsing
     ExprPtr expression();
+    ExprPtr ternary();
     ExprPtr assignment();
     ExprPtr logicalOr();
     ExprPtr logicalAnd();
@@ -44,6 +45,13 @@ private:
     StmtPtr functionStatement(const std::string& kind);
     StmtPtr returnStatement();
     StmtPtr declaration();
+    StmtPtr classDeclaration();
+    StmtPtr importStatement();
+    StmtPtr tryStatement();
+    StmtPtr throwStatement();
+    StmtPtr switchStatement();
+    StmtPtr externDeclaration();
+    StmtPtr pluginDeclaration();
 
 public:
     explicit Parser(std::vector<Token> tokens);

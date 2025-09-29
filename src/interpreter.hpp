@@ -17,6 +17,11 @@ public:
     void executeBlock(const std::vector<StmtPtr>& statements, std::shared_ptr<Environment> environment);
     
     // Expression visitors
+    Value visitLambdaExpr(LambdaExpr& expr) override;
+    Value visitTernaryExpr(TernaryExpr& expr) override;
+    Value visitSetExpr(SetExpr& expr) override;
+    Value visitSuperExpr(SuperExpr& expr) override;
+    Value visitThisExpr(ThisExpr& expr) override;
     Value visitBinaryExpr(BinaryExpr& expr) override;
     Value visitUnaryExpr(UnaryExpr& expr) override;
     Value visitLiteralExpr(LiteralExpr& expr) override;
@@ -27,8 +32,17 @@ public:
     Value visitGetExpr(GetExpr& expr) override;
     Value visitListExpr(ListExpr& expr) override;
     Value visitIndexExpr(IndexExpr& expr) override;
+    Value visitExternExpr(ExternExpr& expr) override;
+    Value visitLoadLibraryExpr(LoadLibraryExpr& expr) override;
     
     // Statement visitors
+    void visitClassStmt(ClassStmt& stmt) override;
+    void visitImportStmt(ImportStmt& stmt) override;
+    void visitTryStmt(TryStmt& stmt) override;
+    void visitThrowStmt(ThrowStmt& stmt) override;
+    void visitSwitchStmt(SwitchStmt& stmt) override;
+    void visitExternStmt(ExternStmt& stmt) override;
+    void visitPluginStmt(PluginStmt& stmt) override;
     void visitExpressionStmt(ExpressionStmt& stmt) override;
     void visitPrintStmt(PrintStmt& stmt) override;
     void visitVarStmt(VarStmt& stmt) override;

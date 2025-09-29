@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/focus-nexus.iml" filepath="$PROJECT_DIR$/.idea/focus-nexus.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/focusNexus.iml" filepath="$PROJECT_DIR$/.idea/focusNexus.iml" />
     </modules>
   </component>
 </project>

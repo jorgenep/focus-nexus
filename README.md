@@ -4,13 +4,22 @@ Focus Nexus is a fully functional interpreted programming language implemented i
 
 ## Features
 
-- **Data Types**: Numbers (double), strings, booleans, nil, functions, lists
+- **Data Types**: Numbers (double), strings, booleans, nil, functions, lists, classes, instances
 - **Variables**: Dynamic typing with `let` and `var` declarations
-- **Operators**: Arithmetic (+, -, *, /), comparison (==, !=, <, >, <=, >=), logical (and, or, !)
-- **Control Flow**: if/else statements, while loops, for loops
-- **Functions**: User-defined functions with parameters, return values, and closures
-- **Built-ins**: print(), input(), len(), str(), num(), type(), clock()
-- **Lists**: Dynamic arrays with indexing support
+- **Operators**: 
+  - Arithmetic (+, -, *, /, %, **)
+  - Comparison (==, !=, <, >, <=, >=)
+  - Logical (and, or, !)
+  - Bitwise (&, |, ^, ~, <<, >>)
+  - Assignment (=, +=, -=, *=, /=)
+  - Ternary (?:)
+- **Control Flow**: if/else statements, while loops, for loops, switch statements
+- **Functions**: User-defined functions, lambda expressions, closures
+- **Classes**: Object-oriented programming with inheritance
+- **Exception Handling**: try/catch/finally blocks with throw statements
+- **Import System**: Support for importing modules (extensible for Python/C++ libraries)
+- **Built-ins**: print(), input(), len(), str(), num(), type(), clock(), range(), map(), filter()
+- **Lists**: Dynamic arrays with indexing and functional programming support
 - **Scoping**: Proper lexical scoping with block scope
 - **Error Handling**: Comprehensive error reporting with line/column information
 
@@ -82,6 +91,121 @@ print(len(numbers))  // 5
 
 ### Functions
 ```javascript
+// Class definition with inheritance
+class Animal:
+{
+    function init(name):
+    {
+        this.name = name
+        this.energy = 100
+    }
+    
+    function speak():
+    {
+        print(this.name + " makes a sound")
+    }
+}
+
+class Dog extends Animal:
+{
+    function init(name, breed):
+    {
+        super.init(name)
+        this.breed = breed
+    }
+    
+    function speak():
+    {
+        print(this.name + " barks!")
+    }
+}
+
+let buddy = Dog("Buddy", "Golden Retriever")
+buddy.speak()
+```
+
+### Lambda Functions and Functional Programming
+```javascript
+// Lambda expressions
+let square = lambda(x): x * x
+let add = lambda(a, b): a + b
+
+// Higher-order functions
+let numbers = range(1, 11)
+let squares = map(square, numbers)
+let evens = filter(lambda(x): x % 2 == 0, numbers)
+```
+
+### Exception Handling
+```javascript
+function divide(a, b):
+{
+    try:
+    {
+        if b == 0:
+        {
+            throw "Division by zero error"
+        }
+        return a / b
+    }
+    catch(error):
+    {
+        print("Error:", error)
+        return nil
+    }
+    finally:
+    {
+        print("Operation completed")
+    }
+}
+```
+
+### Enhanced Operators
+```javascript
+// Arithmetic and bitwise
+let result = 2 ** 3        // Power: 8
+let mod = 10 % 3           // Modulo: 1
+let bitAnd = 5 & 3         // Bitwise AND: 1
+let bitOr = 5 | 3          // Bitwise OR: 7
+let leftShift = 4 << 1     // Left shift: 8
+
+// Ternary operator
+let status = age >= 18 ? "adult" : "minor"
+```
+
+### Switch Statements
+```javascript
+switch day:
+{
+    case 1:
+    case 7:
+        print("Weekend")
+        break
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+        print("Weekday")
+        break
+    default:
+        print("Invalid day")
+}
+```
+
+### Import System
+```javascript
+// Import modules
+import math
+import collections as col
+
+// Future support for:
+// import numpy as np
+// import requests
+```
+
+### Original Features
+```javascript
 // Function definition
 function greet(name):
 {
@@ -146,6 +270,11 @@ let text = str(123)        // Number to string
 print(len("Hello"))        // String length: 5
 print(type(42))           // Type checking: "number"
 print(clock())            // Current time in seconds
+
+// Functional programming
+let numbers = range(1, 10)     // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+let doubled = map(lambda(x): x * 2, numbers)
+let evens = filter(lambda(x): x % 2 == 0, numbers)
 ```
 
 ## Example Programs
@@ -159,6 +288,8 @@ The `tests/examples/` directory contains comprehensive example programs:
 - **loops.fn** - While and for loop examples
 - **conditionals.fn** - If/else statements and boolean logic
 - **fibonacci.fn** - Recursive Fibonacci implementation
+- **advanced_features.fn** - Classes, lambdas, exception handling, and more
+- **import_demo.fn** - Import system demonstration
 
 ## Architecture
 
@@ -235,6 +366,19 @@ To add new features:
 3. **AST Nodes**: Add new node types in `ast.hpp`
 4. **Parser**: Update parsing rules in `parser.cpp`
 5. **Interpreter**: Implement evaluation in `interpreter.cpp`
+
+### Adding Library Support
+
+The language is designed to be extensible with:
+
+- **Python Libraries**: Via Python C API integration
+- **C++ Libraries**: Through shared library loading
+- **Custom Modules**: Native Focus Nexus module system
+
+Example extension points:
+- `ImportStmt` handling in interpreter
+- Native function registration system
+- Foreign function interface (FFI) support
 
 ## Testing
 

@@ -1,0 +1,168 @@
+// Advanced Features Demo for Focus Nexus
+
+// Classes and Inheritance
+class Animal:
+{
+    function init(name):
+    {
+        this.name = name
+        this.energy = 100
+    }
+    
+    function speak():
+    {
+        print(this.name + " makes a sound")
+    }
+    
+    function move():
+    {
+        this.energy = this.energy - 10
+        print(this.name + " moves (energy: " + str(this.energy) + ")")
+    }
+}
+
+class Dog extends Animal:
+{
+    function init(name, breed):
+    {
+        super.init(name)
+        this.breed = breed
+    }
+    
+    function speak():
+    {
+        print(this.name + " barks!")
+    }
+    
+    function wagTail():
+    {
+        print(this.name + " wags tail happily")
+    }
+}
+
+// Create instances
+let buddy = Dog("Buddy", "Golden Retriever")
+buddy.speak()
+buddy.move()
+buddy.wagTail()
+
+// Lambda functions
+let square = lambda(x): x * x
+print("Square of 5:", square(5))
+
+let add = lambda(a, b): a + b
+print("3 + 4 =", add(3, 4))
+
+// Higher-order functions with map and filter
+let numbers = range(1, 11)
+print("Numbers:", numbers)
+
+let squares = map(square, numbers)
+print("Squares:", squares)
+
+let evens = filter(lambda(x): x % 2 == 0, numbers)
+print("Even numbers:", evens)
+
+// Ternary operator
+let age = 20
+let status = age >= 18 ? "adult" : "minor"
+print("Status:", status)
+
+// Enhanced operators
+let a = 10
+let b = 3
+
+print("Power:", a ** b)
+print("Modulo:", a % b)
+print("Bitwise AND:", a & b)
+print("Bitwise OR:", a | b)
+print("Bitwise XOR:", a ^ b)
+print("Left shift:", a << 1)
+print("Right shift:", a >> 1)
+print("Bitwise NOT:", ~a)
+
+// Switch statement
+function getDayType(day):
+{
+    switch day:
+    {
+        case 1:
+        case 7:
+            return "weekend"
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+            return "weekday"
+        default:
+            return "invalid day"
+    }
+}
+
+print("Day 1 is:", getDayType(1))
+print("Day 3 is:", getDayType(3))
+
+// Exception handling
+function divide(a, b):
+{
+    try:
+    {
+        if b == 0:
+        {
+            throw "Division by zero error"
+        }
+        return a / b
+    }
+    catch(error):
+    {
+        print("Caught error:", error)
+        return nil
+    }
+    finally:
+    {
+        print("Division operation completed")
+    }
+}
+
+print("10 / 2 =", divide(10, 2))
+print("10 / 0 =", divide(10, 0))
+
+// Complex data structures
+class Stack:
+{
+    function init():
+    {
+        this.items = []
+    }
+    
+    function push(item):
+    {
+        this.items = this.items + [item]
+    }
+    
+    function pop():
+    {
+        if len(this.items) == 0:
+        {
+            throw "Stack is empty"
+        }
+        let item = this.items[len(this.items) - 1]
+        // Note: This is a simplified pop - in a full implementation
+        // we would remove the item from the list
+        return item
+    }
+    
+    function isEmpty():
+    {
+        return len(this.items) == 0
+    }
+}
+
+let stack = Stack()
+stack.push(1)
+stack.push(2)
+stack.push(3)
+print("Stack is empty:", stack.isEmpty())
+
+print("Advanced features demonstration complete!")
