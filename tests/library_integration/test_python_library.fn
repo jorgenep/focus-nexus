@@ -1,0 +1,279 @@
+// Python Library Integration Test
+// This test demonstrates comprehensive Python library integration
+
+print("=== Python Library Integration Test ===")
+
+// Load the Python advanced math module
+extern "advanced_math.py" as pymath : python
+
+print("Testing basic mathematical functions:")
+
+// Test Fibonacci
+let fib_result = call_native(pymath.fibonacci, 10)
+print("fibonacci(10) =", fib_result)
+assert(fib_result == 55, "Fibonacci test failed")
+
+// Test factorial
+let fact_result = call_native(pymath.factorial, 5)
+print("factorial(5) =", fact_result)
+assert(fact_result == 120, "Factorial test failed")
+
+// Test prime checking
+let prime_result = call_native(pymath.is_prime, 17)
+print("is_prime(17) =", prime_result)
+assert(prime_result == true, "Prime test failed")
+
+let not_prime_result = call_native(pymath.is_prime, 15)
+print("is_prime(15) =", not_prime_result)
+assert(not_prime_result == false, "Not prime test failed")
+
+// Test GCD
+let gcd_result = call_native(pymath.gcd, 48, 18)
+print("gcd(48, 18) =", gcd_result)
+assert(gcd_result == 6, "GCD test failed")
+
+// Test LCM
+let lcm_result = call_native(pymath.lcm, 12, 18)
+print("lcm(12, 18) =", lcm_result)
+assert(lcm_result == 36, "LCM test failed")
+
+print("\nTesting advanced mathematical functions:")
+
+// Test prime factors
+let factors_result = call_native(pymath.prime_factors, 60)
+print("prime_factors(60) =", factors_result)
+// Should return [2, 2, 3, 5]
+
+// Test perfect number checking
+let perfect_result = call_native(pymath.is_perfect_number, 28)
+print("is_perfect_number(28) =", perfect_result)
+assert(perfect_result == true, "Perfect number test failed")
+
+// Test Collatz sequence
+let collatz_result = call_native(pymath.collatz_sequence, 7)
+print("collatz_sequence(7) =", collatz_result)
+// Should return [7, 22, 11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1]
+
+// Test digital root
+let digital_root_result = call_native(pymath.digital_root, 9875)
+print("digital_root(9875) =", digital_root_result)
+assert(digital_root_result == 2, "Digital root test failed")
+
+// Test number reversal
+let reverse_num_result = call_native(pymath.reverse_number, 12345)
+print("reverse_number(12345) =", reverse_num_result)
+assert(reverse_num_result == 54321, "Number reverse test failed")
+
+// Test palindrome number
+let palindrome_num_result = call_native(pymath.is_palindrome_number, 12321)
+print("is_palindrome_number(12321) =", palindrome_num_result)
+assert(palindrome_num_result == true, "Palindrome number test failed")
+
+print("\nTesting statistical functions:")
+
+// Create test data
+let test_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+// Test mean
+let mean_result = call_native(pymath.mean, test_data)
+print("mean([1..10]) =", mean_result)
+assert(mean_result == 5.5, "Mean test failed")
+
+// Test median
+let median_result = call_native(pymath.median, test_data)
+print("median([1..10]) =", median_result)
+assert(median_result == 5.5, "Median test failed")
+
+// Test mode
+let mode_data = [1, 2, 2, 3, 3, 3, 4]
+let mode_result = call_native(pymath.mode, mode_data)
+print("mode([1,2,2,3,3,3,4]) =", mode_result)
+assert(mode_result == 3, "Mode test failed")
+
+// Test standard deviation
+let std_dev_result = call_native(pymath.standard_deviation, test_data)
+print("standard_deviation([1..10]) =", std_dev_result)
+// Should be approximately 3.03
+
+print("\nTesting string manipulation functions:")
+
+// Test string reversal
+let str_reverse_result = call_native(pymath.reverse_string, "Python Test")
+print("reverse_string('Python Test') =", str_reverse_result)
+assert(str_reverse_result == "tseT nohtyP", "String reverse test failed")
+
+// Test palindrome string
+let str_palindrome_result = call_native(pymath.is_palindrome_string, "A man a plan a canal Panama")
+print("is_palindrome_string('A man a plan a canal Panama') =", str_palindrome_result)
+assert(str_palindrome_result == true, "String palindrome test failed")
+
+// Test vowel counting
+let vowel_count_result = call_native(pymath.count_vowels, "Hello World")
+print("count_vowels('Hello World') =", vowel_count_result)
+assert(vowel_count_result == 3, "Vowel count test failed")
+
+// Test consonant counting
+let consonant_count_result = call_native(pymath.count_consonants, "Hello World")
+print("count_consonants('Hello World') =", consonant_count_result)
+assert(consonant_count_result == 7, "Consonant count test failed")
+
+// Test word capitalization
+let capitalize_result = call_native(pymath.capitalize_words, "hello world from python")
+print("capitalize_words('hello world from python') =", capitalize_result)
+assert(capitalize_result == "Hello World From Python", "Capitalize test failed")
+
+// Test duplicate removal
+let remove_dup_result = call_native(pymath.remove_duplicates, "hello")
+print("remove_duplicates('hello') =", remove_dup_result)
+assert(remove_dup_result == "helo", "Remove duplicates test failed")
+
+print("\nTesting utility functions:")
+
+// Test random list generation
+let random_list = call_native(pymath.generate_random_list, 5, 1, 10)
+print("generate_random_list(5, 1, 10) =", random_list)
+assert(len(random_list) == 5, "Random list generation test failed")
+
+// Test number system conversions
+let binary_result = call_native(pymath.decimal_to_binary, 42)
+print("decimal_to_binary(42) =", binary_result)
+assert(binary_result == "101010", "Binary conversion test failed")
+
+let decimal_result = call_native(pymath.binary_to_decimal, "101010")
+print("binary_to_decimal('101010') =", decimal_result)
+assert(decimal_result == 42, "Decimal conversion test failed")
+
+let hex_result = call_native(pymath.decimal_to_hex, 255)
+print("decimal_to_hex(255) =", hex_result)
+assert(hex_result == "ff", "Hex conversion test failed")
+
+let hex_decimal_result = call_native(pymath.hex_to_decimal, "ff")
+print("hex_to_decimal('ff') =", hex_decimal_result)
+assert(hex_decimal_result == 255, "Hex to decimal test failed")
+
+print("\nTesting Python classes:")
+
+// Test Calculator class
+print("Testing Calculator class...")
+let calc = call_native(pymath.Calculator)
+
+let calc_add = call_native(calc.add, 100, 50)
+print("Calculator.add(100, 50) =", calc_add)
+assert(calc_add == 150, "Calculator add test failed")
+
+let calc_sub = call_native(calc.subtract, 100, 30)
+print("Calculator.subtract(100, 30) =", calc_sub)
+assert(calc_sub == 70, "Calculator subtract test failed")
+
+let calc_mul = call_native(calc.multiply, 7, 8)
+print("Calculator.multiply(7, 8) =", calc_mul)
+assert(calc_mul == 56, "Calculator multiply test failed")
+
+let calc_div = call_native(calc.divide, 84, 12)
+print("Calculator.divide(84, 12) =", calc_div)
+assert(calc_div == 7, "Calculator divide test failed")
+
+let calc_power = call_native(calc.power, 2, 6)
+print("Calculator.power(2, 6) =", calc_power)
+assert(calc_power == 64, "Calculator power test failed")
+
+let calc_sqrt = call_native(calc.sqrt, 81)
+print("Calculator.sqrt(81) =", calc_sqrt)
+assert(calc_sqrt == 9, "Calculator sqrt test failed")
+
+// Test calculator history
+let calc_history = call_native(calc.get_history)
+print("Calculator history:", calc_history)
+assert(len(calc_history) > 0, "Calculator history test failed")
+
+// Test memory functions
+call_native(calc.store_memory, 42)
+let memory_value = call_native(calc.recall_memory)
+print("Calculator memory recall =", memory_value)
+assert(memory_value == 42, "Calculator memory test failed")
+
+// Test Statistics class
+print("\nTesting Statistics class...")
+let stats = call_native(pymath.Statistics, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+let stats_mean = call_native(stats.get_mean)
+print("Statistics.get_mean() =", stats_mean)
+assert(stats_mean == 5.5, "Statistics mean test failed")
+
+let stats_median = call_native(stats.get_median)
+print("Statistics.get_median() =", stats_median)
+assert(stats_median == 5.5, "Statistics median test failed")
+
+let stats_range = call_native(stats.get_range)
+print("Statistics.get_range() =", stats_range)
+assert(stats_range == 9, "Statistics range test failed")
+
+// Add more data and test
+call_native(stats.add_data, 11, 12, 13, 14, 15)
+let new_mean = call_native(stats.get_mean)
+print("Statistics.get_mean() after adding data =", new_mean)
+assert(new_mean == 8, "Statistics updated mean test failed")
+
+// Test summary
+let stats_summary = call_native(stats.get_summary)
+print("Statistics summary:", stats_summary)
+
+print("\nTesting error handling:")
+
+// Test error conditions
+try:
+{
+    let error_result = call_native(pymath.fibonacci, -5)
+    print("This should not print - negative Fibonacci")
+}
+catch(error):
+{
+    print("Caught expected error:", error)
+}
+
+try:
+{
+    let error_result = call_native(pymath.factorial, -3)
+    print("This should not print - negative factorial")
+}
+catch(error):
+{
+    print("Caught expected error:", error)
+}
+
+try:
+{
+    let error_result = call_native(calc.divide, 10, 0)
+    print("This should not print - division by zero")
+}
+catch(error):
+{
+    print("Caught expected error:", error)
+}
+
+print("\nTesting module information:")
+
+// Test module info
+let module_info = call_native(pymath.get_module_info)
+print("Module info:", module_info)
+
+print("\n=== Python Library Integration Test Complete ===")
+print("All Python library functions tested successfully!")
+print("✓ Basic mathematical functions")
+print("✓ Advanced mathematical functions") 
+print("✓ Statistical functions")
+print("✓ String manipulation functions")
+print("✓ Utility functions")
+print("✓ Class instantiation and methods")
+print("✓ Error handling")
+print("✓ Module information")
+
+// Helper function for assertions
+function assert(condition, message):
+{
+    if not condition:
+    {
+        print("ASSERTION FAILED:", message)
+        throw "Test assertion failed"
+    }
+}

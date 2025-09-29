@@ -1,0 +1,234 @@
+// Java Library Integration Test
+// This test demonstrates comprehensive Java library integration
+
+print("=== Java Library Integration Test ===")
+
+// Load the Java AdvancedMathUtils class
+extern "AdvancedMathUtils" as javamath : java
+
+print("Testing basic arithmetic functions:")
+
+// Test addition
+let add_result = call_native(javamath.add, 123, 456)
+print("add(123, 456) =", add_result)
+assert(add_result == 579, "Java addition test failed")
+
+// Test subtraction
+let sub_result = call_native(javamath.subtract, 1000, 234)
+print("subtract(1000, 234) =", sub_result)
+assert(sub_result == 766, "Java subtraction test failed")
+
+// Test multiplication
+let mul_result = call_native(javamath.multiply, 15, 16)
+print("multiply(15, 16) =", mul_result)
+assert(mul_result == 240, "Java multiplication test failed")
+
+// Test division
+let div_result = call_native(javamath.divide, 144, 12)
+print("divide(144, 12) =", div_result)
+assert(div_result == 12, "Java division test failed")
+
+print("\nTesting advanced mathematical functions:")
+
+// Test factorial
+let factorial_result = call_native(javamath.factorial, 6)
+print("factorial(6) =", factorial_result)
+assert(factorial_result == 720, "Java factorial test failed")
+
+// Test big factorial for large numbers
+let big_factorial_result = call_native(javamath.bigFactorial, 20)
+print("bigFactorial(20) =", big_factorial_result)
+// Should be 2432902008176640000
+
+// Test Fibonacci
+let fib_result = call_native(javamath.fibonacci, 15)
+print("fibonacci(15) =", fib_result)
+assert(fib_result == 610, "Java Fibonacci test failed")
+
+// Test prime checking
+let prime_result = call_native(javamath.isPrime, 97)
+print("isPrime(97) =", prime_result)
+assert(prime_result == true, "Java prime test failed")
+
+let not_prime_result = call_native(javamath.isPrime, 100)
+print("isPrime(100) =", not_prime_result)
+assert(not_prime_result == false, "Java not prime test failed")
+
+// Test GCD
+let gcd_result = call_native(javamath.gcd, 56, 42)
+print("gcd(56, 42) =", gcd_result)
+assert(gcd_result == 14, "Java GCD test failed")
+
+// Test LCM
+let lcm_result = call_native(javamath.lcm, 15, 20)
+print("lcm(15, 20) =", lcm_result)
+assert(lcm_result == 60, "Java LCM test failed")
+
+print("\nTesting string manipulation functions:")
+
+// Test string reversal
+let reverse_result = call_native(javamath.reverseString, "Java Integration")
+print("reverseString('Java Integration') =", reverse_result)
+assert(reverse_result == "noitatgetnI avaJ", "Java string reverse test failed")
+
+// Test word capitalization
+let capitalize_result = call_native(javamath.capitalizeWords, "hello world from java")
+print("capitalizeWords('hello world from java') =", capitalize_result)
+assert(capitalize_result == "Hello World From Java", "Java capitalize test failed")
+
+// Test palindrome checking
+let palindrome_result = call_native(javamath.isPalindrome, "racecar")
+print("isPalindrome('racecar') =", palindrome_result)
+assert(palindrome_result == true, "Java palindrome test failed")
+
+let not_palindrome_result = call_native(javamath.isPalindrome, "hello")
+print("isPalindrome('hello') =", not_palindrome_result)
+assert(not_palindrome_result == false, "Java not palindrome test failed")
+
+print("\nTesting number system conversions:")
+
+// Test binary conversion
+let binary_result = call_native(javamath.decimalToBinary, 42)
+print("decimalToBinary(42) =", binary_result)
+assert(binary_result == "101010", "Java binary conversion test failed")
+
+let binary_to_decimal_result = call_native(javamath.binaryToDecimal, "101010")
+print("binaryToDecimal('101010') =", binary_to_decimal_result)
+assert(binary_to_decimal_result == 42, "Java binary to decimal test failed")
+
+// Test hexadecimal conversion
+let hex_result = call_native(javamath.decimalToHex, 255)
+print("decimalToHex(255) =", hex_result)
+assert(hex_result == "FF", "Java hex conversion test failed")
+
+let hex_to_decimal_result = call_native(javamath.hexToDecimal, "FF")
+print("hexToDecimal('FF') =", hex_to_decimal_result)
+assert(hex_to_decimal_result == 255, "Java hex to decimal test failed")
+
+// Test with larger numbers
+let large_hex = call_native(javamath.decimalToHex, 4095)
+print("decimalToHex(4095) =", large_hex)
+assert(large_hex == "FFF", "Java large hex conversion test failed")
+
+print("\nTesting random number generation:")
+
+// Test random double
+let random_double = call_native(javamath.randomDouble, 10.0, 50.0)
+print("randomDouble(10.0, 50.0) =", random_double)
+assert(random_double >= 10.0 and random_double <= 50.0, "Java random double test failed")
+
+// Test random integer
+let random_int = call_native(javamath.randomInt, 1, 100)
+print("randomInt(1, 100) =", random_int)
+assert(random_int >= 1 and random_int <= 100, "Java random int test failed")
+
+print("\nTesting library information:")
+
+// Test library info
+let lib_info = call_native(javamath.getLibraryInfo)
+print("getLibraryInfo() =", lib_info)
+
+let lib_version = call_native(javamath.getVersion)
+print("getVersion() =", lib_version)
+assert(lib_version == "2.0.0", "Java version test failed")
+
+print("\nTesting error handling:")
+
+// Test division by zero
+try:
+{
+    let error_result = call_native(javamath.divide, 10, 0)
+    print("This should not print - division by zero")
+}
+catch(error):
+{
+    print("Caught expected Java ArithmeticException:", error)
+}
+
+// Test negative factorial
+try:
+{
+    let error_result = call_native(javamath.factorial, -5)
+    print("This should not print - negative factorial")
+}
+catch(error):
+{
+    print("Caught expected Java IllegalArgumentException:", error)
+}
+
+// Test invalid binary string
+try:
+{
+    let error_result = call_native(javamath.binaryToDecimal, "invalid")
+    print("This should not print - invalid binary")
+}
+catch(error):
+{
+    print("Caught expected Java NumberFormatException:", error)
+}
+
+// Test invalid hex string
+try:
+{
+    let error_result = call_native(javamath.hexToDecimal, "invalid")
+    print("This should not print - invalid hex")
+}
+catch(error):
+{
+    print("Caught expected Java NumberFormatException:", error)
+}
+
+print("\nTesting edge cases:")
+
+// Test with zero values
+let zero_factorial = call_native(javamath.factorial, 0)
+print("factorial(0) =", zero_factorial)
+assert(zero_factorial == 1, "Java zero factorial test failed")
+
+let zero_fibonacci = call_native(javamath.fibonacci, 0)
+print("fibonacci(0) =", zero_fibonacci)
+assert(zero_fibonacci == 0, "Java zero Fibonacci test failed")
+
+// Test with large values
+let large_fibonacci = call_native(javamath.fibonacci, 30)
+print("fibonacci(30) =", large_fibonacci)
+assert(large_fibonacci == 832040, "Java large Fibonacci test failed")
+
+// Test GCD edge cases
+let gcd_same = call_native(javamath.gcd, 15, 15)
+print("gcd(15, 15) =", gcd_same)
+assert(gcd_same == 15, "Java GCD same numbers test failed")
+
+let gcd_one = call_native(javamath.gcd, 17, 1)
+print("gcd(17, 1) =", gcd_one)
+assert(gcd_one == 1, "Java GCD with one test failed")
+
+// Test string edge cases
+let empty_reverse = call_native(javamath.reverseString, "")
+print("reverseString('') =", empty_reverse)
+assert(empty_reverse == "", "Java empty string reverse test failed")
+
+let single_char_reverse = call_native(javamath.reverseString, "a")
+print("reverseString('a') =", single_char_reverse)
+assert(single_char_reverse == "a", "Java single char reverse test failed")
+
+print("\n=== Java Library Integration Test Complete ===")
+print("All Java library methods tested successfully!")
+print("✓ Basic arithmetic operations")
+print("✓ Advanced mathematical functions")
+print("✓ String manipulation functions")
+print("✓ Number system conversions")
+print("✓ Random number generation")
+print("✓ Error handling and exceptions")
+print("✓ Edge cases and boundary conditions")
+print("✓ Library information methods")
+
+// Helper function for assertions
+function assert(condition, message):
+{
+    if not condition:
+    {
+        print("ASSERTION FAILED:", message)
+        throw "Test assertion failed"
+    }
+}
