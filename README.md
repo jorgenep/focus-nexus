@@ -5,7 +5,7 @@ Focus Nexus is a fully functional interpreted programming language implemented i
 ## Features
 
 - **Data Types**: Numbers (double), strings, booleans, nil, functions, lists, classes, instances
-- **Variables**: Dynamic typing with `let` and `var` declarations
+- **Variables**: Dynamic typing with `set` and `var` declarations
 - **Operators**: 
   - Arithmetic (+, -, *, /, %, **)
   - Comparison (==, !=, <, >, <=, >=)
@@ -65,8 +65,8 @@ make
 ./build/focusNexus
 
 # Example session:
-> let x = 10
-> let y = 20
+> set x = 10
+> set y = 20
 > print(x + y)
 30
 > exit
@@ -77,14 +77,14 @@ make
 ### Variables and Data Types
 ```javascript
 // Variable declarations
-let name = "Alice"
-let age = 25
-let pi = 3.14159
-let is_student = true
-let nothing = nil
+set name = "Alice"
+set age = 25
+set pi = 3.14159
+set is_student = true
+set nothing = nil
 
 // Lists
-let numbers = [1, 2, 3, 4, 5]
+set numbers = [1, 2, 3, 4, 5]
 print(numbers[0])  // 1
 print(len(numbers))  // 5
 ```
@@ -120,20 +120,20 @@ class Dog extends Animal:
     }
 }
 
-let buddy = Dog("Buddy", "Golden Retriever")
+set buddy = Dog("Buddy", "Golden Retriever")
 buddy.speak()
 ```
 
 ### Lambda Functions and Functional Programming
 ```javascript
 // Lambda expressions
-let square = lambda(x): x * x
-let add = lambda(a, b): a + b
+set square = lambda(x): x * x
+set add = lambda(a, b): a + b
 
 // Higher-order functions
-let numbers = range(1, 11)
-let squares = map(square, numbers)
-let evens = filter(lambda(x): x % 2 == 0, numbers)
+set numbers = range(1, 11)
+set squares = map(square, numbers)
+set evens = filter(lambda(x): x % 2 == 0, numbers)
 ```
 
 ### Exception Handling
@@ -163,14 +163,14 @@ function divide(a, b):
 ### Enhanced Operators
 ```javascript
 // Arithmetic and bitwise
-let result = 2 ** 3        // Power: 8
-let mod = 10 % 3           // Modulo: 1
-let bitAnd = 5 & 3         // Bitwise AND: 1
-let bitOr = 5 | 3          // Bitwise OR: 7
-let leftShift = 4 << 1     // Left shift: 8
+set result = 2 ** 3        // Power: 8
+set mod = 10 % 3           // Modulo: 1
+set bitAnd = 5 & 3         // Bitwise AND: 1
+set bitOr = 5 | 3          // Bitwise OR: 7
+set leftShift = 4 << 1     // Left shift: 8
 
 // Ternary operator
-let status = age >= 18 ? "adult" : "minor"
+set status = age >= 18 ? "adult" : "minor"
 ```
 
 ### Switch Statements
@@ -210,11 +210,11 @@ import collections as col
 function greet(name):
 {
     print("Hello, " + name + "!")
-    return "greeting complete"
+    return "greeting compsete"
 }
 
 // Function call
-let result = greet("World")
+set result = greet("World")
 
 // Recursive function
 function factorial(n):
@@ -240,7 +240,7 @@ else:
 }
 
 // While loops
-let i = 0
+set i = 0
 while i < 5:
 {
     print(i)
@@ -260,11 +260,11 @@ for j = 0; j < 10; j = j + 1:
 print("Hello", "World", 123)
 
 // Input
-let name = input("Enter your name: ")
+set name = input("Enter your name: ")
 
 // Type conversion
-let num = num("42")        // String to number
-let text = str(123)        // Number to string
+set num = num("42")        // String to number
+set text = str(123)        // Number to string
 
 // Utility functions
 print(len("Hello"))        // String length: 5
@@ -272,9 +272,9 @@ print(type(42))           // Type checking: "number"
 print(clock())            // Current time in seconds
 
 // Functional programming
-let numbers = range(1, 10)     // [1, 2, 3, 4, 5, 6, 7, 8, 9]
-let doubled = map(lambda(x): x * 2, numbers)
-let evens = filter(lambda(x): x % 2 == 0, numbers)
+set numbers = range(1, 10)     // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+set doubled = map(lambda(x): x * 2, numbers)
+set evens = filter(lambda(x): x % 2 == 0, numbers)
 ```
 
 ## Example Programs
@@ -316,7 +316,7 @@ declaration    → funDecl
                | statement ;
 
 funDecl        → "function" IDENTIFIER "(" parameters? ")" ":" NEWLINE "{" block "}" ;
-varDecl        → ( "var" | "let" ) IDENTIFIER ( "=" expression )? NEWLINE ;
+varDecl        → ( "var" | "set" ) IDENTIFIER ( "=" expression )? NEWLINE ;
 
 statement      → exprStmt
                | forStmt

@@ -25,6 +25,9 @@
     <ClCompile Include="C:\Users\ejorg\OneDrive\Documents\GitHub\focus-nexus\src\runtime\native_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\ejorg\OneDrive\Documents\GitHub\focus-nexus\src\runtime\library_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\ejorg\OneDrive\Documents\GitHub\focus-nexus\src\runtime\value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
