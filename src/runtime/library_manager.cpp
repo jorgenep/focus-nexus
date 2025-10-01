@@ -132,7 +132,7 @@ Value CppLibraryInterface::callFunction(const std::string& functionName, const s
     } else {
         // Load the function
 #ifdef _WIN32
-        funcPtr = GetProcAddress(handle, functionName.c_str());
+        funcPtr = reinterpret_cast<void*>(GetProcAddress(handle, functionName.c_str()));
 #else
         funcPtr = dlsym(handle, functionName.c_str());
 #endif
@@ -213,13 +213,13 @@ bool CppLibraryInterface::hasFunction(const std::string& functionName) const {
     if (functions.find(functionName) != functions.end()) {
         return true;
     }
-    
+
 #ifdef _WIN32
-    void* funcPtr = GetProcAddress(handle, functionName.c_str());
+    void* funcPtr = reinterpret_cast<void*>(GetProcAddress(handle, functionName.c_str()));
 #else
     void* funcPtr = dlsym(handle, functionName.c_str());
 #endif
-    
+
     return funcPtr != nullptr;
 }
 
@@ -724,10 +724,10 @@ bool CustomPluginInterface::hasFunction(const std::string& functionName) const {
     
     std::string symbolName = "focus_nexus_" + functionName;
 #ifdef _WIN32
-    void* funcPtr = GetProcAddress(handle, symbolName.c_str());
+    void* funcPtr = reinterpret_cast<void*>(GetProcAddress(handle, symbolName.c_str()));
 #else
     void* funcPtr = dlsym(handle, symbolName.c_str());
 #endif
-    
+
     return funcPtr != nullptr;
 }

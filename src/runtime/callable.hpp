@@ -6,6 +6,9 @@
 #include <vector>
 
 class Interpreter;
+struct Token;
+class Stmt;
+using StmtPtr = std::unique_ptr<Stmt>;
 
 class Callable {
 public:
@@ -16,16 +19,17 @@ public:
 };
 
 class Function : public Callable {
-private:
+public:
     class FunctionStmt* declaration;
     std::shared_ptr<class Environment> closure;
 
-public:
     Function(class FunctionStmt* declaration, std::shared_ptr<class Environment> closure);
-    
+
     int arity() override;
     Value call(Interpreter& interpreter, std::vector<Value> arguments) override;
     std::string toString() override;
+
+    std::shared_ptr<class Environment> getClosure() const { return closure; }
 };
 
 class NativeFunction : public Callable {

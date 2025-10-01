@@ -42,6 +42,8 @@ struct Token {
     int line;
     int column;
 
+    Token() : type(TokenType::EOF_TOKEN), lexeme(""), literal(""), line(0), column(0) {}
+
     Token(TokenType type, std::string lexeme, std::string literal, int line, int column)
         : type(type), lexeme(std::move(lexeme)), literal(std::move(literal)), line(line), column(column) {}
 };
