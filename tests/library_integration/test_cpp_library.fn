@@ -1,0 +1,143 @@
+// C++ Library Integration Test
+// This test demonstrates comprehensive C++ library integration
+
+print("=== C++ Library Integration Test ===")
+
+// Load the C++ math library
+extern "libmath.so" as mathlib : cpp
+
+print("Testing basic arithmetic functions:")
+
+// Test addition
+let add_result = call_native(mathlib.add_numbers, 42, 58)
+print("add_numbers(42, 58) =", add_result)
+assert(add_result == 100, "Addition test failed")
+
+// Test subtraction
+let sub_result = call_native(mathlib.subtract_numbers, 100, 25)
+print("subtract_numbers(100, 25) =", sub_result)
+assert(sub_result == 75, "Subtraction test failed")
+
+// Test multiplication
+let mul_result = call_native(mathlib.multiply_numbers, 12, 8)
+print("multiply_numbers(12, 8) =", mul_result)
+assert(mul_result == 96, "Multiplication test failed")
+
+// Test division
+let div_result = call_native(mathlib.divide_numbers, 84, 7)
+print("divide_numbers(84, 7) =", div_result)
+assert(div_result == 12, "Division test failed")
+
+print("\nTesting advanced mathematical functions:")
+
+// Test power calculation
+let power_result = call_native(mathlib.calculate_power, 3, 4)
+print("calculate_power(3, 4) =", power_result)
+assert(power_result == 81, "Power test failed")
+
+// Test square root
+let sqrt_result = call_native(mathlib.calculate_sqrt, 144)
+print("calculate_sqrt(144) =", sqrt_result)
+assert(sqrt_result == 12, "Square root test failed")
+
+// Test trigonometric functions
+let sin_result = call_native(mathlib.calculate_sin, 1.5708) // π/2
+print("calculate_sin(π/2) =", sin_result)
+assert(sin_result > 0.99 and sin_result < 1.01, "Sine test failed")
+
+let cos_result = call_native(mathlib.calculate_cos, 0)
+print("calculate_cos(0) =", cos_result)
+assert(cos_result == 1, "Cosine test failed")
+
+// Test logarithmic functions
+let log_result = call_native(mathlib.calculate_log, 2.71828) // e
+print("calculate_log(e) =", log_result)
+assert(log_result > 0.99 and log_result < 1.01, "Natural log test failed")
+
+let log10_result = call_native(mathlib.calculate_log10, 1000)
+print("calculate_log10(1000) =", log10_result)
+assert(log10_result == 3, "Log10 test failed")
+
+print("\nTesting statistical functions:")
+
+// Test factorial
+let factorial_result = call_native(mathlib.calculate_factorial, 5)
+print("calculate_factorial(5) =", factorial_result)
+assert(factorial_result == 120, "Factorial test failed")
+
+// Test Fibonacci
+let fib_result = call_native(mathlib.calculate_fibonacci, 10)
+print("calculate_fibonacci(10) =", fib_result)
+assert(fib_result == 55, "Fibonacci test failed")
+
+print("\nTesting string manipulation functions:")
+
+// Test string reversal
+let reverse_result = call_native(mathlib.reverse_string, "Hello World")
+print("reverse_string('Hello World') =", reverse_result)
+assert(reverse_result == "dlroW olleH", "String reverse test failed")
+
+// Test case conversion
+let upper_result = call_native(mathlib.to_uppercase, "focus nexus")
+print("to_uppercase('focus nexus') =", upper_result)
+assert(upper_result == "FOCUS NEXUS", "Uppercase test failed")
+
+let lower_result = call_native(mathlib.to_lowercase, "FOCUS NEXUS")
+print("to_lowercase('FOCUS NEXUS') =", lower_result)
+assert(lower_result == "focus nexus", "Lowercase test failed")
+
+print("\nTesting utility functions:")
+
+// Test random number generation
+let random_result = call_native(mathlib.random_range, 10, 20)
+print("random_range(10, 20) =", random_result)
+assert(random_result >= 10 and random_result <= 20, "Random range test failed")
+
+// Test number rounding
+let round_result = call_native(mathlib.round_to_places, 3.14159, 2)
+print("round_to_places(3.14159, 2) =", round_result)
+assert(round_result == 3.14, "Rounding test failed")
+
+// Test prime checking
+let prime_result = call_native(mathlib.is_prime, 17)
+print("is_prime(17) =", prime_result)
+assert(prime_result == 1, "Prime test failed")
+
+// Test even/odd checking
+let even_result = call_native(mathlib.is_even, 42)
+print("is_even(42) =", even_result)
+assert(even_result == 1, "Even test failed")
+
+let odd_result = call_native(mathlib.is_odd, 43)
+print("is_odd(43) =", odd_result)
+assert(odd_result == 1, "Odd test failed")
+
+print("\nTesting advanced features:")
+
+// Test quadratic equation solver
+let quad_discriminant = call_native(mathlib.solve_quadratic, 1, -5, 6)
+print("solve_quadratic(1, -5, 6) discriminant =", quad_discriminant)
+
+let root1 = call_native(mathlib.get_root1)
+let root2 = call_native(mathlib.get_root2)
+print("Roots:", root1, "and", root2)
+
+// Test library information
+let lib_info = call_native(mathlib.get_library_info)
+print("Library info:", lib_info)
+
+let lib_version = call_native(mathlib.get_library_version)
+print("Library version:", lib_version)
+
+print("\n=== C++ Library Integration Test Complete ===")
+print("All C++ library functions tested successfully!")
+
+// Helper function for assertions
+function assert(condition, message):
+{
+    if not condition:
+    {
+        print("ASSERTION FAILED:", message)
+        throw "Test assertion failed"
+    }
+}

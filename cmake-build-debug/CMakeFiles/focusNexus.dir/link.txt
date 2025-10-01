@@ -1,0 +1,3 @@
+C:\Users\ejorg\AppData\Local\Programs\CLion\bin\cmake\win\x64\bin\cmake.exe -E rm -f CMakeFiles\focusNexus.dir/objects.a
+C:\Users\ejorg\AppData\Local\Programs\CLion\bin\mingw\bin\ar.exe qc CMakeFiles\focusNexus.dir/objects.a @CMakeFiles\focusNexus.dir\objects1.rsp
+C:\Users\ejorg\AppData\Local\Programs\CLion\bin\mingw\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\focusNexus.dir/objects.a -Wl,--no-whole-archive -o focusNexus.exe -Wl,--out-implib,libfocusNexus.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\focusNexus.dir\linkLibs.rsp

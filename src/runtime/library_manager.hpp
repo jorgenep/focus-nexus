@@ -12,6 +12,10 @@
 #include <dlfcn.h>
 #endif
 
+#ifdef JNI_SUPPORT
+#include <jni.h>
+#endif
+
 // Forward declarations
 class Interpreter;
 
@@ -32,7 +36,7 @@ private:
 #else
     void* handle;
 #endif
-    std::unordered_map<std::string, void*> functions;
+    mutable std::unordered_map<std::string, void*> functions;
 
 public:
     explicit CppLibraryInterface(const std::string& libraryPath);
@@ -50,7 +54,6 @@ class PythonLibraryInterface : public LibraryInterface {
 private:
     std::string moduleName;
     void* pythonModule; // PyObject* in disguise
-    std::unordered_map<std::string, void*> functions;
     static bool pythonInitialized;
 
 public:
@@ -69,11 +72,13 @@ public:
 class JavaLibraryInterface : public LibraryInterface {
 private:
     std::string className;
-    void* jvm; // JavaVM* in disguise
-    void* env; // JNIEnv* in disguise
     void* javaClass; // jclass in disguise
-    std::unordered_map<std::string, void*> methods;
     static bool jvmInitialized;
+
+#ifdef JNI_SUPPORT
+    static JavaVM* jvm;
+    static JNIEnv* env;
+#endif
 
 public:
     explicit JavaLibraryInterface(const std::string& classPath);
@@ -95,7 +100,7 @@ private:
 #else
     void* handle;
 #endif
-    std::unordered_map<std::string, std::function<Value(const std::vector<Value>&)>> functions;
+    mutable std::unordered_map<std::string, std::function<Value(const std::vector<Value>&)>> functions;
 
 public:
     explicit CustomPluginInterface(const std::string& pluginPath);
@@ -140,9 +145,6 @@ extern "C" {
     
     // Function signature for plugin functions
     typedef Value (*PluginFunction)(const std::vector<Value>& args);
-    
-    // Function signature for registering plugin functions
-    typedef void (*RegisterFunctionFunc)(const char* name, PluginFunction func);
 }
 
 // Helper macros for plugin development

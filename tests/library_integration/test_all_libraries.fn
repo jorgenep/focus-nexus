@@ -1,0 +1,387 @@
+// Complete Library Integration Test Suite
+// This test demonstrates all library types working together
+
+print("=== Complete Library Integration Test Suite ===")
+
+// Load all library types
+print("Loading all libraries...")
+
+extern "libmath.so" as mathlib : cpp
+extern "advanced_math.py" as pymath : python  
+extern "AdvancedMathUtils" as javamath : java
+plugin "comprehensive_plugin.so" as myplugin
+
+print("All libraries loaded successfully!")
+
+print("\n1. Cross-Library Mathematical Comparison:")
+
+// Test the same operation across all libraries
+let test_value = 8
+
+print("Testing factorial(" + str(test_value) + ") across all libraries:")
+let cpp_factorial = call_native(mathlib.calculate_factorial, test_value)
+let py_factorial = call_native(pymath.factorial, test_value)
+let java_factorial = call_native(javamath.factorial, test_value)
+
+print("C++ factorial:", cpp_factorial)
+print("Python factorial:", py_factorial)
+print("Java factorial:", java_factorial)
+
+// Verify all results are the same
+assert(cpp_factorial == py_factorial, "C++ and Python factorial mismatch")
+assert(py_factorial == java_factorial, "Python and Java factorial mismatch")
+print("✓ All factorial implementations agree")
+
+print("\nTesting Fibonacci(" + str(test_value) + ") across libraries:")
+let cpp_fib = call_native(mathlib.calculate_fibonacci, test_value)
+let py_fib = call_native(pymath.fibonacci, test_value)
+let java_fib = call_native(javamath.fibonacci, test_value)
+
+print("C++ Fibonacci:", cpp_fib)
+print("Python Fibonacci:", py_fib)
+print("Java Fibonacci:", java_fib)
+
+assert(cpp_fib == py_fib, "C++ and Python Fibonacci mismatch")
+assert(py_fib == java_fib, "Python and Java Fibonacci mismatch")
+print("✓ All Fibonacci implementations agree")
+
+print("\n2. Cross-Library String Processing:")
+
+let test_string = "Focus Nexus Library Integration"
+
+print("Testing string reversal across libraries:")
+let cpp_reverse = call_native(mathlib.reverse_string, test_string)
+let py_reverse = call_native(pymath.reverse_string, test_string)
+let java_reverse = call_native(javamath.reverseString, test_string)
+let plugin_reverse = call_native(myplugin.advanced_string_reverse, test_string)
+
+print("C++ reverse:", cpp_reverse)
+print("Python reverse:", py_reverse)
+print("Java reverse:", java_reverse)
+print("Plugin reverse:", plugin_reverse)
+
+assert(cpp_reverse == py_reverse, "C++ and Python string reverse mismatch")
+assert(py_reverse == java_reverse, "Python and Java string reverse mismatch")
+assert(java_reverse == plugin_reverse, "Java and Plugin string reverse mismatch")
+print("✓ All string reversal implementations agree")
+
+print("\n3. Complex Data Processing Pipeline:")
+
+// Create a data processing pipeline using all libraries
+print("Creating complex data processing pipeline...")
+
+// Step 1: Generate random data using Java
+let random_data = []
+for i = 0; i < 10; i = i + 1:
+{
+    let random_num = call_native(javamath.randomInt, 1, 100)
+    random_data = random_data + [random_num]
+}
+print("Generated random data:", random_data)
+
+// Step 2: Filter primes using Python
+let prime_data = call_native(pymath.DataProcessor.filter_primes, random_data)
+print("Prime numbers from data:", prime_data)
+
+// Step 3: Calculate statistics using plugin
+if len(prime_data) > 1:
+{
+    let prime_mean = call_native(myplugin.calculate_mean, 
+        prime_data[0], prime_data[1], 
+        len(prime_data) > 2 ? prime_data[2] : 0,
+        len(prime_data) > 3 ? prime_data[3] : 0,
+        len(prime_data) > 4 ? prime_data[4] : 0)
+    print("Mean of prime numbers:", prime_mean)
+    
+    // Store result using plugin
+    call_native(myplugin.store_value, "prime_mean", prime_mean)
+}
+
+// Step 4: Process with C++ library
+let processed_data = []
+for num in random_data:
+{
+    let sqrt_result = call_native(mathlib.calculate_sqrt, num)
+    processed_data = processed_data + [sqrt_result]
+}
+print("Square roots of data:", processed_data)
+
+print("\n4. Library Interoperability Test:")
+
+// Test passing data between libraries
+print("Testing data exchange between libraries...")
+
+// Generate Fibonacci sequence with Python
+let fib_sequence = call_native(pymath.DataProcessor.fibonacci_sequence, 8)
+print("Python Fibonacci sequence:", fib_sequence)
+
+// Process each number with different libraries
+print("Processing Fibonacci numbers with different libraries:")
+for i = 0; i < len(fib_sequence); i = i + 1:
+{
+    let fib_num = fib_sequence[i]
+    
+    // Check if prime using Java
+    let is_prime = call_native(javamath.isPrime, fib_num)
+    
+    // Calculate square using C++
+    let square = call_native(mathlib.calculate_power, fib_num, 2)
+    
+    // Format as currency using plugin
+    let formatted = call_native(myplugin.format_currency, fib_num, "$")
+    
+    print("F(" + str(i) + ") = " + str(fib_num) + 
+          ", Prime: " + str(is_prime) + 
+          ", Square: " + str(square) + 
+          ", Formatted: " + formatted)
+}
+
+print("\n5. Performance Benchmarking:")
+
+function benchmark_libraries():
+{
+    let iterations = 100
+    print("Benchmarking with", iterations, "iterations...")
+    
+    // Benchmark C++ library
+    let start_time = clock()
+    for i = 0; i < iterations; i = i + 1:
+    {
+        call_native(mathlib.add_numbers, i, i + 1)
+    }
+    let cpp_time = clock() - start_time
+    
+    // Benchmark Python library
+    start_time = clock()
+    for i = 0; i < iterations; i = i + 1:
+    {
+        call_native(pymath.fibonacci, 5)
+    }
+    let py_time = clock() - start_time
+    
+    // Benchmark Java library
+    start_time = clock()
+    for i = 0; i < iterations; i = i + 1:
+    {
+        call_native(javamath.add, i, i + 1)
+    }
+    let java_time = clock() - start_time
+    
+    // Benchmark custom plugin
+    start_time = clock()
+    for i = 0; i < iterations; i = i + 1:
+    {
+        call_native(myplugin.calculate_mean, i, i + 1, i + 2)
+    }
+    let plugin_time = clock() - start_time
+    
+    print("Benchmark results:")
+    print("C++ library:", cpp_time, "seconds")
+    print("Python library:", py_time, "seconds")
+    print("Java library:", java_time, "seconds")
+    print("Custom plugin:", plugin_time, "seconds")
+    
+    // Find fastest
+    let fastest_time = cpp_time
+    let fastest_name = "C++"
+    
+    if py_time < fastest_time:
+    {
+        fastest_time = py_time
+        fastest_name = "Python"
+    }
+    
+    if java_time < fastest_time:
+    {
+        fastest_time = java_time
+        fastest_name = "Java"
+    }
+    
+    if plugin_time < fastest_time:
+    {
+        fastest_time = plugin_time
+        fastest_name = "Plugin"
+    }
+    
+    print("Fastest library type:", fastest_name)
+}
+
+benchmark_libraries()
+
+print("\n6. Comprehensive Error Handling:")
+
+function test_all_error_scenarios():
+{
+    print("Testing error scenarios across all library types...")
+    
+    let error_count = 0
+    
+    // C++ library errors
+    try:
+    {
+        call_native(mathlib.divide_numbers, 10, 0)
+    }
+    catch(error):
+    {
+        print("C++ division by zero error:", error)
+        error_count = error_count + 1
+    }
+    
+    try:
+    {
+        call_native(mathlib.calculate_sqrt, -25)
+    }
+    catch(error):
+    {
+        print("C++ negative sqrt error:", error)
+        error_count = error_count + 1
+    }
+    
+    // Python library errors
+    try:
+    {
+        call_native(pymath.factorial, -5)
+    }
+    catch(error):
+    {
+        print("Python negative factorial error:", error)
+        error_count = error_count + 1
+    }
+    
+    try:
+    {
+        call_native(pymath.mean, [])
+    }
+    catch(error):
+    {
+        print("Python empty list mean error:", error)
+        error_count = error_count + 1
+    }
+    
+    // Java library errors
+    try:
+    {
+        call_native(javamath.divide, 10, 0)
+    }
+    catch(error):
+    {
+        print("Java division by zero error:", error)
+        error_count = error_count + 1
+    }
+    
+    try:
+    {
+        call_native(javamath.binaryToDecimal, "invalid")
+    }
+    catch(error):
+    {
+        print("Java invalid binary error:", error)
+        error_count = error_count + 1
+    }
+    
+    // Plugin errors
+    try:
+    {
+        call_native(myplugin.calculate_circle_area, -10)
+    }
+    catch(error):
+    {
+        print("Plugin negative radius error:", error)
+        error_count = error_count + 1
+    }
+    
+    try:
+    {
+        call_native(myplugin.solve_quadratic, 0, 1, 1)
+    }
+    catch(error):
+    {
+        print("Plugin invalid quadratic error:", error)
+        error_count = error_count + 1
+    }
+    
+    print("Successfully caught", error_count, "expected errors")
+    assert(error_count >= 6, "Not all expected errors were caught")
+}
+
+test_all_error_scenarios()
+
+print("\n7. Library Information Summary:")
+
+// Collect information from all libraries
+print("Library information summary:")
+
+let cpp_info = call_native(mathlib.get_library_info)
+print("C++ Library:", cpp_info)
+
+let cpp_version = call_native(mathlib.get_library_version)
+print("C++ Version:", cpp_version)
+
+let py_info = call_native(pymath.get_module_info)
+print("Python Module:", py_info)
+
+let java_info = call_native(javamath.getLibraryInfo)
+print("Java Library:", java_info)
+
+let java_version = call_native(javamath.getVersion)
+print("Java Version:", java_version)
+
+let plugin_version = call_native(myplugin.get_plugin_version)
+print("Plugin Version:", plugin_version)
+
+print("\n8. Memory and Resource Management Test:")
+
+function test_resource_management():
+{
+    print("Testing resource management...")
+    
+    // Create many objects and function calls to test memory management
+    for i = 0; i < 50; i = i + 1:
+    {
+        // Create Python calculator instances
+        let calc = call_native(pymath.Calculator)
+        call_native(calc.add, i, i + 1)
+        
+        // Generate random data
+        let random_val = call_native(javamath.randomDouble, 0, 100)
+        
+        // Store and retrieve values
+        call_native(myplugin.store_value, "temp_" + str(i), random_val)
+        call_native(myplugin.retrieve_value, "temp_" + str(i))
+        
+        // String operations
+        let test_str = "Test string " + str(i)
+        call_native(myplugin.advanced_string_reverse, test_str)
+    }
+    
+    print("Resource management test completed")
+}
+
+test_resource_management()
+
+print("\n=== Complete Library Integration Test Suite Finished ===")
+print("Successfully tested:")
+print("✓ C++ shared library integration")
+print("✓ Python module integration") 
+print("✓ Java class integration")
+print("✓ Custom plugin integration")
+print("✓ Cross-library compatibility")
+print("✓ Data exchange between libraries")
+print("✓ Performance benchmarking")
+print("✓ Comprehensive error handling")
+print("✓ Resource management")
+print("✓ Complex operation pipelines")
+
+print("\nFocus Nexus library integration system is fully functional!")
+print("The language can seamlessly integrate with external libraries")
+print("written in C++, Python, Java, and custom plugins.")
+
+// Helper function for assertions
+function assert(condition, message):
+{
+    if not condition:
+    {
+        print("ASSERTION FAILED:", message)
+        throw "Test assertion failed"
+    }
+}

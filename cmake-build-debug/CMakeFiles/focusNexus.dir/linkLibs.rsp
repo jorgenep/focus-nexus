@@ -1,0 +1,1 @@
+ "C:/Program Files/WindowsApps/PythonSoftwareFoundation.Python.3.13_3.13.2032.0_x64__qbz5n2kfra8p0/libs/python313.lib" "C:/Program Files/Java/jdk-21/lib/jawt.lib" "C:/Program Files/Java/jdk-21/lib/jvm.lib" -lkernel32 -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

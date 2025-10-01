@@ -1,0 +1,3 @@
+C:/Users/ejorg/OneDrive/Documents/GitHub/focus-nexus/cmake-build-debug/CMakeFiles/focusNexus.dir
+C:/Users/ejorg/OneDrive/Documents/GitHub/focus-nexus/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/ejorg/OneDrive/Documents/GitHub/focus-nexus/cmake-build-debug/CMakeFiles/rebuild_cache.dir

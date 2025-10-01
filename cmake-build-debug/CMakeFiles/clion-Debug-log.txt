@@ -1,0 +1,8 @@
+C:\Users\ejorg\AppData\Local\Programs\CLion\bin\cmake\win\x64\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "MinGW Makefiles" -S C:\Users\ejorg\OneDrive\Documents\GitHub\focus-nexus -B C:\Users\ejorg\OneDrive\Documents\GitHub\focus-nexus\cmake-build-debug
+-- Found Python3: C:/Program Files/WindowsApps/PythonSoftwareFoundation.Python.3.13_3.13.2032.0_x64__qbz5n2kfra8p0/python3.13.exe (found version "3.13.7") found components: Interpreter Development Development.Module Development.Embed
+-- Python support enabled
+-- Found JNI: C:/Program Files/Java/jdk-21/include  found components: AWT JVM
+-- Java support enabled
+-- Configuring done (3.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: C:/Users/ejorg/OneDrive/Documents/GitHub/focus-nexus/cmake-build-debug

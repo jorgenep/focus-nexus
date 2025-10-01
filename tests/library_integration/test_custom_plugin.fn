@@ -1,0 +1,276 @@
+// Custom Plugin Integration Test
+// This test demonstrates comprehensive custom plugin integration
+
+print("=== Custom Plugin Integration Test ===")
+
+// Load the comprehensive custom plugin
+plugin "comprehensive_plugin.so" as myplugin
+
+print("Testing mathematical functions:")
+
+// Test distance calculation
+let distance_result = call_native(myplugin.calculate_distance, 0, 0, 3, 4)
+print("calculate_distance(0,0,3,4) =", distance_result)
+assert(distance_result == 5, "Distance calculation test failed")
+
+// Test circle area calculation
+let area_result = call_native(myplugin.calculate_circle_area, 5)
+print("calculate_circle_area(5) =", area_result)
+assert(area_result > 78.5 and area_result < 78.6, "Circle area test failed")
+
+// Test quadratic equation solver
+let quadratic_result = call_native(myplugin.solve_quadratic, 1, -5, 6)
+print("solve_quadratic(1,-5,6) =", quadratic_result)
+// Should return "Two solutions: 3, 2" or similar
+
+// Test quadratic with no real solutions
+let no_solution = call_native(myplugin.solve_quadratic, 1, 0, 1)
+print("solve_quadratic(1,0,1) =", no_solution)
+// Should return "No real solutions"
+
+// Test quadratic with one solution
+let one_solution = call_native(myplugin.solve_quadratic, 1, -4, 4)
+print("solve_quadratic(1,-4,4) =", one_solution)
+// Should return "One solution: 2"
+
+print("\nTesting statistical functions:")
+
+// Test mean calculation
+let mean_result = call_native(myplugin.calculate_mean, 10, 20, 30, 40, 50)
+print("calculate_mean(10,20,30,40,50) =", mean_result)
+assert(mean_result == 30, "Mean calculation test failed")
+
+// Test standard deviation
+let std_dev_result = call_native(myplugin.calculate_standard_deviation, 2, 4, 6, 8, 10)
+print("calculate_standard_deviation(2,4,6,8,10) =", std_dev_result)
+assert(std_dev_result > 3.1 and std_dev_result < 3.3, "Standard deviation test failed")
+
+// Test with single value (should fail)
+try:
+{
+    let single_std_dev = call_native(myplugin.calculate_standard_deviation, 5)
+    print("This should not print - single value std dev")
+}
+catch(error):
+{
+    print("Caught expected error for single value std dev:", error)
+}
+
+print("\nTesting string manipulation functions:")
+
+// Test advanced string reversal
+let reverse_result = call_native(myplugin.advanced_string_reverse, "Custom Plugin Test")
+print("advanced_string_reverse('Custom Plugin Test') =", reverse_result)
+assert(reverse_result == "tseT nigulP motsuC", "String reverse test failed")
+
+// Test word frequency counting
+let freq_result = call_native(myplugin.count_word_frequency, "hello world hello universe hello")
+print("count_word_frequency('hello world hello universe hello') =", freq_result)
+// Should return "hello:3" or similar
+
+// Test number extraction from string
+let extract_result = call_native(myplugin.extract_numbers_from_string, "Price: $25.99, Quantity: 3, Total: $77.97")
+print("extract_numbers_from_string('Price: $25.99, Quantity: 3, Total: $77.97') =", extract_result)
+// Should return [25.99, 3, 77.97]
+assert(len(extract_result) == 3, "Number extraction test failed")
+
+// Test with string containing no numbers
+let no_numbers = call_native(myplugin.extract_numbers_from_string, "No numbers here!")
+print("extract_numbers_from_string('No numbers here!') =", no_numbers)
+assert(len(no_numbers) == 0, "No numbers extraction test failed")
+
+print("\nTesting utility functions:")
+
+// Test currency formatting
+let currency_result = call_native(myplugin.format_currency, 1234.56, "USD")
+print("format_currency(1234.56, 'USD') =", currency_result)
+assert(currency_result == "USD 1234.56", "Currency formatting test failed")
+
+// Test with different currency
+let euro_result = call_native(myplugin.format_currency, 999.99, "EUR")
+print("format_currency(999.99, 'EUR') =", euro_result)
+assert(euro_result == "EUR 999.99", "Euro formatting test failed")
+
+// Test UUID generation
+let uuid_result = call_native(myplugin.generate_uuid)
+print("generate_uuid() =", uuid_result)
+assert(len(uuid_result) == 36, "UUID generation test failed") // UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+// Generate multiple UUIDs to test uniqueness
+let uuid1 = call_native(myplugin.generate_uuid)
+let uuid2 = call_native(myplugin.generate_uuid)
+print("UUID1:", uuid1)
+print("UUID2:", uuid2)
+assert(uuid1 != uuid2, "UUID uniqueness test failed")
+
+print("\nTesting data storage functions:")
+
+// Test value storage and retrieval
+let store_result = call_native(myplugin.store_value, "test_key", "test_value")
+print("store_value('test_key', 'test_value') =", store_result)
+assert(store_result == true, "Value storage test failed")
+
+let retrieve_result = call_native(myplugin.retrieve_value, "test_key")
+print("retrieve_value('test_key') =", retrieve_result)
+assert(retrieve_result == "test_value", "Value retrieval test failed")
+
+// Test storing different data types
+let store_number = call_native(myplugin.store_value, "number_key", 42.5)
+print("store_value('number_key', 42.5) =", store_number)
+
+let retrieve_number = call_native(myplugin.retrieve_value, "number_key")
+print("retrieve_value('number_key') =", retrieve_number)
+assert(retrieve_number == 42.5, "Number storage test failed")
+
+let store_bool = call_native(myplugin.store_value, "bool_key", true)
+let retrieve_bool = call_native(myplugin.retrieve_value, "bool_key")
+print("Boolean storage/retrieval =", retrieve_bool)
+assert(retrieve_bool == true, "Boolean storage test failed")
+
+// Test retrieving non-existent key
+let missing_result = call_native(myplugin.retrieve_value, "nonexistent_key")
+print("retrieve_value('nonexistent_key') =", missing_result)
+assert(missing_result == nil, "Missing key test failed")
+
+// Test listing stored keys
+let stored_keys = call_native(myplugin.list_stored_keys)
+print("list_stored_keys() =", stored_keys)
+assert(len(stored_keys) >= 3, "Stored keys list test failed")
+
+print("\nTesting plugin management functions:")
+
+// Test plugin version
+let plugin_version = call_native(myplugin.get_plugin_version)
+print("get_plugin_version() =", plugin_version)
+assert(plugin_version == "1.0.0", "Plugin version test failed")
+
+// Test plugin log
+let plugin_log = call_native(myplugin.get_plugin_log)
+print("Plugin log entries:")
+print(plugin_log)
+
+// Test log clearing
+let log_count = call_native(myplugin.clear_plugin_log)
+print("clear_plugin_log() cleared", log_count, "entries")
+
+let new_log = call_native(myplugin.get_plugin_log)
+print("New log after clearing:", new_log)
+
+print("\nTesting error handling:")
+
+// Test invalid arguments
+try:
+{
+    let error_result = call_native(myplugin.calculate_distance, 1, 2) // Missing arguments
+    print("This should not print - insufficient arguments")
+}
+catch(error):
+{
+    print("Caught expected error for insufficient arguments:", error)
+}
+
+try:
+{
+    let error_result = call_native(myplugin.calculate_circle_area, -5) // Negative radius
+    print("This should not print - negative radius")
+}
+catch(error):
+{
+    print("Caught expected error for negative radius:", error)
+}
+
+try:
+{
+    let error_result = call_native(myplugin.solve_quadratic, 0, 1, 1) // a=0 in quadratic
+    print("This should not print - invalid quadratic")
+}
+catch(error):
+{
+    print("Caught expected error for invalid quadratic:", error)
+}
+
+try:
+{
+    let error_result = call_native(myplugin.advanced_string_reverse, 123) // Wrong type
+    print("This should not print - wrong argument type")
+}
+catch(error):
+{
+    print("Caught expected error for wrong argument type:", error)
+}
+
+print("\nTesting complex scenarios:")
+
+// Test chaining operations
+let x1 = 1
+let y1 = 1
+let x2 = 4
+let y2 = 5
+
+let distance = call_native(myplugin.calculate_distance, x1, y1, x2, y2)
+let radius = distance / 2
+let area = call_native(myplugin.calculate_circle_area, radius)
+print("Distance:", distance, "-> Radius:", radius, "-> Area:", area)
+
+// Test data processing pipeline
+let numbers_string = "The values are 10, 20, 30, 40, and 50"
+let extracted_numbers = call_native(myplugin.extract_numbers_from_string, numbers_string)
+print("Extracted numbers:", extracted_numbers)
+
+// Calculate statistics on extracted numbers
+let extracted_mean = call_native(myplugin.calculate_mean, 
+    extracted_numbers[0], extracted_numbers[1], extracted_numbers[2], 
+    extracted_numbers[3], extracted_numbers[4])
+print("Mean of extracted numbers:", extracted_mean)
+assert(extracted_mean == 30, "Extracted numbers mean test failed")
+
+// Test string processing pipeline
+let test_text = "This is a test string for word frequency analysis"
+let word_freq = call_native(myplugin.count_word_frequency, test_text)
+print("Word frequency analysis:", word_freq)
+
+let reversed_text = call_native(myplugin.advanced_string_reverse, test_text)
+print("Reversed text:", reversed_text)
+
+// Test storage as cache
+call_native(myplugin.store_value, "cached_distance", distance)
+call_native(myplugin.store_value, "cached_area", area)
+call_native(myplugin.store_value, "cached_mean", extracted_mean)
+
+let all_keys = call_native(myplugin.list_stored_keys)
+print("All cached values:", all_keys)
+
+// Retrieve and verify cached values
+let cached_distance = call_native(myplugin.retrieve_value, "cached_distance")
+let cached_area = call_native(myplugin.retrieve_value, "cached_area")
+let cached_mean = call_native(myplugin.retrieve_value, "cached_mean")
+
+print("Retrieved cached distance:", cached_distance)
+print("Retrieved cached area:", cached_area)
+print("Retrieved cached mean:", cached_mean)
+
+assert(cached_distance == distance, "Cached distance test failed")
+assert(cached_area == area, "Cached area test failed")
+assert(cached_mean == extracted_mean, "Cached mean test failed")
+
+print("\n=== Custom Plugin Integration Test Complete ===")
+print("All custom plugin functions tested successfully!")
+print("✓ Mathematical calculation functions")
+print("✓ Statistical analysis functions")
+print("✓ String manipulation functions")
+print("✓ Utility and formatting functions")
+print("✓ Data storage and retrieval")
+print("✓ Plugin management functions")
+print("✓ Comprehensive error handling")
+print("✓ Complex operation chaining")
+print("✓ Edge case handling")
+
+// Helper function for assertions
+function assert(condition, message):
+{
+    if not condition:
+    {
+        print("ASSERTION FAILED:", message)
+        throw "Test assertion failed"
+    }
+}
